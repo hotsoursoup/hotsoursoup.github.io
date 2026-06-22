@@ -374,13 +374,20 @@ h1 {
     font-weight: 930;
 }
 
-.radio-button {
+.sound-deck {
     align-self: end;
     justify-self: end;
+    display: grid;
+    gap: 8px;
+    width: min(100%, 154px);
+}
+
+.radio-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    width: 100%;
     min-width: 136px;
     min-height: 40px;
     color: #ffffff;
@@ -399,6 +406,10 @@ h1 {
 .radio-button.playing .radio-light {
     background: var(--accent-d);
     box-shadow: 0 0 18px color-mix(in srgb, var(--accent-d) 70%, transparent), inset 0 0 0 2px rgba(255, 255, 255, 0.42);
+}
+
+.beat-button {
+    background: linear-gradient(135deg, #182014, #285c35 52%, #b5ff4d);
 }
 
 .controls {
@@ -716,7 +727,7 @@ pre {
         opacity: 0.48;
     }
 
-    .radio-button {
+    .sound-deck {
         justify-self: start;
     }
 
@@ -766,6 +777,7 @@ pre {
         grid-template-columns: 1fr;
     }
 
+    .sound-deck,
     .radio-button,
     .status-strip button {
         width: 100%;

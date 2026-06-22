@@ -229,4 +229,6 @@ The local manager lives at `http://localhost:8000/manage_website/`.
 
 ## Tiny Fun Feature
 
-The `perlin music` button uses the browser's built-in Web Audio API to play quiet generated ambient music. It uses a small Perlin-style noise function to steer note choices, pitch drift, filter movement, and delay timing. There is no audio file and nothing external to host.
+The `perlin music` button uses the browser's built-in Web Audio API to play quiet generated ambient music. It uses a small Perlin-style noise function to steer note choices, pitch drift, filter movement, and delay timing.
+
+The `jungle beat` button adds a generated drum mix with kick, snare, ghost snare, hats, tom hits, and a fast swung pattern. There are no audio files and nothing external to host.

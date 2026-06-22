@@ -7,8 +7,11 @@ const state = {
         theme: "all",
         search: ""
     },
+    audioContext: null,
     music: null,
     musicOn: false,
+    beat: null,
+    beatOn: false,
     visualTheme: "aura"
 };
 
@@ -31,7 +34,8 @@ const els = {
     searchFilter: document.querySelector("#search-filter"),
     clearFilters: document.querySelector("#clear-filters"),
     emptyTemplate: document.querySelector("#empty-state-template"),
-    musicButton: document.querySelector("[data-radio-toggle]")
+    musicButton: document.querySelector("[data-music-toggle]"),
+    beatButton: document.querySelector("[data-beat-toggle]")
 };
 
 async function loadJson(path) {
@@ -167,6 +171,7 @@ function bindEvents() {
         render();
     });
     els.musicButton.addEventListener("click", toggleMusic);
+    els.beatButton.addEventListener("click", toggleBeat);
 }
 
 function getInitialVisualTheme() {
@@ -419,13 +424,29 @@ function toggleMusic() {
     }
 }
 
-function startMusic() {
+async function getAudioContext() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) {
+        return null;
+    }
+
+    if (!state.audioContext) {
+        state.audioContext = new AudioContext();
+    }
+
+    if (state.audioContext.state === "suspended") {
+        await state.audioContext.resume();
+    }
+
+    return state.audioContext;
+}
+
+async function startMusic() {
+    const context = await getAudioContext();
+    if (!context) {
         return;
     }
 
-    const context = state.music?.context || new AudioContext();
     const master = context.createGain();
     const filter = context.createBiquadFilter();
     const delay = context.createDelay(1.6);
@@ -458,7 +479,7 @@ function startMusic() {
     delay.connect(wet);
     wet.connect(master);
     master.connect(context.destination);
-    master.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 1.1);
+    master.gain.exponentialRampToValueAtTime(0.085, context.currentTime + 0.8);
 
     const tick = () => {
         if (!state.musicOn) {
@@ -480,14 +501,14 @@ function startMusic() {
     };
 
     tick();
-    state.music = { context, voices, master, rafId };
+    state.music = { context, voices, master, rafId, filter, delay, feedback, wet };
 }
 
 function createMusicVoices(context) {
     const voiceSettings = [
-        { type: "sine", level: 0.020, octave: 1 },
-        { type: "triangle", level: 0.014, octave: 2 },
-        { type: "sine", level: 0.009, octave: 0.5 }
+        { type: "sine", level: 0.036, octave: 1 },
+        { type: "triangle", level: 0.022, octave: 2 },
+        { type: "sine", level: 0.017, octave: 0.5 }
     ];
 
     return voiceSettings.map((setting) => ({
@@ -529,6 +550,10 @@ function stopMusic() {
     }
 
     const { context, voices, master, rafId } = state.music;
+    if (!master || !voices) {
+        state.music = null;
+        return;
+    }
     const now = context.currentTime;
     cancelAnimationFrame(rafId);
     master.gain.cancelScheduledValues(now);
@@ -539,6 +564,182 @@ function stopMusic() {
         voice.oscillator.stop(now + 0.55);
     });
     state.music = { context };
+}
+
+function toggleBeat() {
+    state.beatOn = !state.beatOn;
+    els.beatButton.setAttribute("aria-pressed", String(state.beatOn));
+    els.beatButton.classList.toggle("playing", state.beatOn);
+
+    if (state.beatOn) {
+        startBeat();
+    } else {
+        stopBeat();
+    }
+}
+
+async function startBeat() {
+    const context = await getAudioContext();
+    if (!context) {
+        return;
+    }
+
+    const master = context.createGain();
+    const compressor = context.createDynamicsCompressor();
+    const tempo = 165;
+    const stepDuration = 60 / tempo / 2;
+    let step = 0;
+    let nextTime = context.currentTime + 0.05;
+    let timer = 0;
+
+    master.gain.value = 0.0001;
+    compressor.threshold.value = -18;
+    compressor.knee.value = 18;
+    compressor.ratio.value = 5;
+    compressor.attack.value = 0.006;
+    compressor.release.value = 0.12;
+    master.connect(compressor);
+    compressor.connect(context.destination);
+    master.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.35);
+
+    const schedule = () => {
+        while (nextTime < context.currentTime + 0.16) {
+            scheduleJungleStep(context, master, step, nextTime);
+            nextTime += stepDuration;
+            step += 1;
+        }
+    };
+
+    schedule();
+    timer = window.setInterval(schedule, 35);
+    state.beat = { context, master, timer };
+}
+
+function scheduleJungleStep(context, destination, step, time) {
+    const pattern = step % 16;
+    const swing = pattern % 2 ? 0.018 : 0;
+    const t = time + swing;
+
+    if ([0, 6, 10].includes(pattern)) {
+        playKick(context, destination, t);
+    }
+    if ([4, 12].includes(pattern)) {
+        playSnare(context, destination, t);
+    }
+    if ([3, 7, 11, 15].includes(pattern)) {
+        playGhostSnare(context, destination, t);
+    }
+    if (pattern % 2 === 0 || [5, 13].includes(pattern)) {
+        playHat(context, destination, t, pattern % 4 === 0 ? 0.06 : 0.035);
+    }
+    if ([9, 14].includes(pattern)) {
+        playTom(context, destination, t);
+    }
+}
+
+function playKick(context, destination, time) {
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(120, time);
+    osc.frequency.exponentialRampToValueAtTime(42, time + 0.13);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(0.9, time + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.22);
+    osc.connect(gain);
+    gain.connect(destination);
+    osc.start(time);
+    osc.stop(time + 0.24);
+}
+
+function playSnare(context, destination, time) {
+    const noise = createNoiseSource(context, 0.18);
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    filter.type = "bandpass";
+    filter.frequency.value = 1850;
+    filter.Q.value = 0.8;
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(0.42, time + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(destination);
+    noise.start(time);
+}
+
+function playGhostSnare(context, destination, time) {
+    const noise = createNoiseSource(context, 0.08);
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    filter.type = "highpass";
+    filter.frequency.value = 1400;
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(0.12, time + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.065);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(destination);
+    noise.start(time);
+}
+
+function playHat(context, destination, time, level) {
+    const noise = createNoiseSource(context, 0.045);
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    filter.type = "highpass";
+    filter.frequency.value = 6200;
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(level, time + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.04);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(destination);
+    noise.start(time);
+}
+
+function playTom(context, destination, time) {
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(180, time);
+    osc.frequency.exponentialRampToValueAtTime(92, time + 0.12);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(0.22, time + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+    osc.connect(gain);
+    gain.connect(destination);
+    osc.start(time);
+    osc.stop(time + 0.18);
+}
+
+function createNoiseSource(context, duration) {
+    const sampleCount = Math.max(1, Math.floor(context.sampleRate * duration));
+    const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let index = 0; index < sampleCount; index += 1) {
+        data[index] = Math.random() * 2 - 1;
+    }
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    return source;
+}
+
+function stopBeat() {
+    if (!state.beat) {
+        return;
+    }
+
+    const { context, master, timer } = state.beat;
+    if (!master) {
+        state.beat = null;
+        return;
+    }
+    const now = context.currentTime;
+    window.clearInterval(timer);
+    master.gain.cancelScheduledValues(now);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    state.beat = { context };
 }
 
 function perlin1D(value) {
