@@ -1,0 +1,49 @@
+[
+  {
+    "id": "first-entry",
+    "title": "First Entry",
+    "date": "2026-06-22",
+    "tag": "note",
+    "tags": ["note", "clean-slate"],
+    "theme": "matcha",
+    "content": [
+      {
+        "type": "text",
+        "text": "This is Aryan's section of the blog. Clean slate, pure text, raw ideas. Changes from Aryan's repo, now tucked into the JSON-powered soup."
+      }
+    ]
+  },
+  {
+    "id": "template-aryan-gallery",
+    "title": "Template: gallery and code post",
+    "date": "2026-06-20",
+    "tag": "template",
+    "tags": ["template", "gallery", "code"],
+    "theme": "porcelain",
+    "draft": true,
+    "content": [
+      {
+        "type": "text",
+        "text": "Duplicate this object when you want a small image gallery plus a code block."
+      },
+      {
+        "type": "gallery",
+        "images": [
+          {
+            "src": "first-image.jpg",
+            "alt": "Describe the first local image"
+          },
+          {
+            "url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+            "alt": "A calm outdoor scene"
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "language": "txt",
+        "code": "little note\\nsecond line\\nthird line"
+      }
+    ]
+  }
+]

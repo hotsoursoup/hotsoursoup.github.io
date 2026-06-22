@@ -1,0 +1,52 @@
+{
+  "site": {
+    "title": "Hot Sour Soup",
+    "subtitle": "A soft static journal for shared notes, images, links, and experiments."
+  },
+  "authors": {
+    "himanshu": {
+      "displayName": "Himanshu",
+      "handle": "my_log",
+      "postFile": "himanshu.json",
+      "imageFolder": "himanshu_images",
+      "accent": "#a66a42"
+    },
+    "aryan": {
+      "displayName": "Aryan",
+      "handle": "aryan_log",
+      "postFile": "aryan.json",
+      "imageFolder": "aryan_images",
+      "accent": "#6b7f5f"
+    }
+  },
+  "postThemes": {
+    "porcelain": {
+      "label": "Porcelain",
+      "accent": "#ad7b55",
+      "paper": "#fffdf8",
+      "tint": "#f5ead7",
+      "border": "#dfc8aa"
+    },
+    "matcha": {
+      "label": "Matcha",
+      "accent": "#6e8261",
+      "paper": "#fbfff7",
+      "tint": "#e8f0df",
+      "border": "#c8d6bb"
+    },
+    "sunprint": {
+      "label": "Sunprint",
+      "accent": "#b6862f",
+      "paper": "#fffaf0",
+      "tint": "#f8e7b9",
+      "border": "#e2c57e"
+    },
+    "ink": {
+      "label": "Ink",
+      "accent": "#56677e",
+      "paper": "#fafcff",
+      "tint": "#e1e8f0",
+      "border": "#bac8d7"
+    }
+  }
+}

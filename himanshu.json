@@ -1,0 +1,70 @@
+[
+  {
+    "id": "git-pipeline",
+    "title": "Setting up the Git pipeline",
+    "date": "2026-06-22",
+    "tag": "devlog",
+    "tags": ["devlog", "setup", "github-pages"],
+    "theme": "porcelain",
+    "content": [
+      {
+        "type": "text",
+        "text": "We finalized the static HTML architecture. Updates can now happen through tiny JSON files, which feels correct for a personal web corner: light, visible, and easy to tinker with."
+      },
+      {
+        "type": "link",
+        "text": "GitHub Pages",
+        "url": "https://pages.github.com/"
+      },
+      {
+        "type": "quote",
+        "text": "Small websites should feel like rooms you can rearrange without calling a contractor."
+      }
+    ]
+  },
+  {
+    "id": "hello-world",
+    "title": "Hello World",
+    "date": "2026-06-21",
+    "tag": "note",
+    "tags": ["note", "first-post"],
+    "theme": "sunprint",
+    "content": [
+      {
+        "type": "text",
+        "text": "Starting a minimal, non-bloated corner on the web. The plan is simple: write things, add images when they help, and keep the site playful enough that updating it does not feel like homework."
+      },
+      {
+        "type": "list",
+        "items": ["raw HTML/CSS/JS", "separate post files", "tags and filters", "calm retro styling"]
+      }
+    ]
+  },
+  {
+    "id": "template-himanshu",
+    "title": "Template: image and remote image post",
+    "date": "2026-06-20",
+    "tag": "template",
+    "tags": ["template", "images"],
+    "theme": "ink",
+    "draft": true,
+    "content": [
+      {
+        "type": "text",
+        "text": "Duplicate this object when you want a post with local and remote images. Set draft to false when it is ready."
+      },
+      {
+        "type": "image",
+        "src": "example-photo.jpg",
+        "alt": "Describe the local image here",
+        "caption": "Local images live in himanshu_images. Only the filename is needed."
+      },
+      {
+        "type": "image",
+        "url": "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1200&q=80",
+        "alt": "A tranquil desk near a window",
+        "caption": "Remote images use url instead of src."
+      }
+    ]
+  }
+]

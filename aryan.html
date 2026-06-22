@@ -3,27 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; url=index.html">
-    <link rel="canonical" href="index.html">
-    <title>Shared Workspace</title>
+    <title>Hot Sour Soup | Aryan</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header>
-        <span class="logo"><strong>[LOG_DEV]</strong></span>
-        <nav>
-            <a href="index.html">shared_feed</a>
-        </nav>
-    </header>
-    <hr>
+<body data-default-author="aryan">
+    <div class="page-shell">
+        <header class="site-header">
+            <a class="logo" href="index.html" aria-label="Hot Sour Soup home">
+                <span class="logo-mark">hss</span>
+                <span class="logo-text">hot sour soup</span>
+            </a>
+            <nav class="site-nav" aria-label="Log navigation">
+                <a href="index.html" data-nav-author="himanshu">himanshu_log</a>
+                <a href="aryan.html" data-nav-author="aryan">aryan_log</a>
+            </nav>
+        </header>
 
-    <main>
-        <p>This page has moved to the shared feed: <a href="index.html">open shared_feed</a>.</p>
-    </main>
+        <main>
+            <section class="intro-panel" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">static journal / shared notebook</p>
+                    <h1 id="page-title">Aryan's side of the soup: notes with a retro glow and room for tiny discoveries.</h1>
+                </div>
+                <button class="radio-button" type="button" data-radio-toggle aria-pressed="false">
+                    <span class="radio-light" aria-hidden="true"></span>
+                    soup radio
+                </button>
+            </section>
 
-    <footer>
-        <hr>
-        <p><small>Built with raw HTML/CSS. Monospaced for clarity.</small></p>
-    </footer>
+            <section class="controls" aria-label="Post filters">
+                <label>
+                    <span>Author</span>
+                    <select id="author-filter"></select>
+                </label>
+                <label>
+                    <span>Tag</span>
+                    <select id="tag-filter"></select>
+                </label>
+                <label>
+                    <span>Theme</span>
+                    <select id="theme-filter"></select>
+                </label>
+                <label class="search-box">
+                    <span>Search</span>
+                    <input id="search-filter" type="search" placeholder="title, text, link..." autocomplete="off">
+                </label>
+            </section>
+
+            <section class="status-strip" aria-live="polite">
+                <p id="post-count">Loading posts...</p>
+                <button type="button" id="clear-filters">clear filters</button>
+            </section>
+
+            <section id="posts" class="post-list" aria-live="polite"></section>
+            <template id="empty-state-template">
+                <article class="empty-state">
+                    <p class="eyebrow">no signal</p>
+                    <h2>No posts match those filters.</h2>
+                    <p>Try a wider tag, switch author, or clear the search box.</p>
+                </article>
+            </template>
+        </main>
+
+        <footer class="site-footer">
+            <p>Built from small JSON files, plain HTML, CSS, and a little static-page magic.</p>
+        </footer>
+    </div>
+
+    <script src="posts.js" defer></script>
 </body>
 </html>
