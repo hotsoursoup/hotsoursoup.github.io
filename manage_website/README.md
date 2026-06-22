@@ -6,10 +6,34 @@ The root `_config.yml` excludes this folder from the GitHub Pages build.
 
 ## Open It
 
+Easy Windows option:
+
+Double-click `start_manager.bat` in the repo root. It starts a local server and opens the manager.
+
+The Windows launcher uses `start_manager.ps1` behind the scenes. It checks whether Python is real before starting the server, so the Microsoft Store Python shortcut will not fool it.
+
+Easy Mac option:
+
+Double-click `start_manager_mac.command` in the repo root. If macOS blocks it, right-click the file, choose `Open`, then confirm. It starts a local server and opens the manager.
+
+If macOS says the command file is not executable, run this once in Terminal from the repo root:
+
+```bash
+chmod +x start_manager_mac.command
+```
+
+Manual option:
+
 From the repo root:
 
 ```powershell
 python -m http.server 8000
+```
+
+On Mac, use:
+
+```bash
+python3 -m http.server 8000
 ```
 
 Open:
@@ -20,6 +44,15 @@ http://localhost:8000/manage_website/
 
 Use Chrome or Edge. The manager uses the browser File System Access API, which lets a local page edit local files only after you choose the folder.
 
+Requirements:
+
+- Python 3, only to start the local server.
+- Chrome or Edge.
+- No .NET Framework.
+- The repo folder on your computer.
+
+If Windows says Python is missing, install Python 3 from `https://www.python.org/downloads/` and tick `Add python.exe to PATH` during installation.
+
 ## First Step
 
 Click `Choose Site Folder` and select the `hotsoursoup.github.io` folder.
@@ -29,6 +62,19 @@ The manager loads:
 - `site.config.json`
 - `himanshu.json`
 - `aryan.json`
+
+## Create A New Post
+
+1. Open the manager.
+2. Click `Choose Site Folder`.
+3. Select the `hotsoursoup.github.io` folder.
+4. Open the `Create Post` tab.
+5. Choose the author.
+6. Fill title, date, tags, and post theme.
+7. Add/edit content blocks in the JSON editor, or use the insert buttons.
+8. Click `Save Post`.
+9. Type the author's exact name, such as `Himanshu` or `Aryan`.
+10. Check the public page locally, then commit and push.
 
 ## Identity Confirmation
 

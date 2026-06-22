@@ -12,6 +12,10 @@ const els = {
     statusDot: document.querySelector("#status-dot"),
     connectionStatus: document.querySelector("#connection-status"),
     statusMessage: document.querySelector("#status-message"),
+    reqBrowser: document.querySelector("#req-browser"),
+    reqLocalhost: document.querySelector("#req-localhost"),
+    reqFolder: document.querySelector("#req-folder"),
+    reqPython: document.querySelector("#req-python"),
     workspace: document.querySelector(".workspace"),
     tabs: document.querySelectorAll(".tab-button"),
     panels: document.querySelectorAll(".panel"),
@@ -62,6 +66,7 @@ const blockTemplates = {
 };
 
 bindEvents();
+runPreflight();
 
 function bindEvents() {
     els.connect.addEventListener("click", connectFolder);
@@ -91,7 +96,14 @@ function bindEvents() {
 
 async function connectFolder() {
     if (!("showDirectoryPicker" in window)) {
-        setStatus("Unsupported browser", "Use Chrome or Edge through localhost for folder write access.", false);
+        setStatus("Wrong browser", "Use Chrome or Edge. This browser cannot safely edit local JSON files.", false);
+        runPreflight();
+        return;
+    }
+
+    if (!isLocalhost()) {
+        setStatus("Not local", "Open this through http://localhost:8000/manage_website/. Do not open the HTML file directly.", false);
+        runPreflight();
         return;
     }
 
@@ -100,8 +112,10 @@ async function connectFolder() {
         await loadAll();
         els.workspace.hidden = false;
         setStatus("Connected", `Loaded ${Object.keys(state.config.authors).length} authors from ${state.root.name}.`, true);
+        runPreflight();
     } catch (error) {
         setStatus("Not connected", error.message, false);
+        runPreflight();
     }
 }
 
@@ -119,6 +133,59 @@ async function loadAll() {
     loadPostIntoEditor(blankPost(), state.selectedAuthor);
     renderThemes();
     renderSiteConfig();
+}
+
+function runPreflight() {
+    const supportsFolderAccess = "showDirectoryPicker" in window;
+    const local = isLocalhost();
+
+    setRequirement(
+        els.reqBrowser,
+        supportsFolderAccess ? "ok" : "bad",
+        supportsFolderAccess
+            ? "Good. This browser can ask for folder access."
+            : "Use Chrome or Edge. Safari/Firefox usually cannot edit local files here."
+    );
+
+    setRequirement(
+        els.reqLocalhost,
+        local ? "ok" : "bad",
+        local
+            ? "Good. You opened this through localhost."
+            : "Start the local server first, then open http://localhost:8000/manage_website/."
+    );
+
+    setRequirement(
+        els.reqFolder,
+        state.root ? "ok" : "warn",
+        state.root
+            ? `Selected: ${state.root.name}`
+            : "Click Choose Site Folder and select hotsoursoup.github.io."
+    );
+
+    setRequirement(
+        els.reqPython,
+        local ? "ok" : "warn",
+        local
+            ? "The local server is running. Python or another server already did its job."
+            : "If the launcher fails, install Python 3. No .NET Framework is needed."
+    );
+}
+
+function setRequirement(node, status, message) {
+    if (!node) {
+        return;
+    }
+    node.classList.remove("ok", "warn", "bad");
+    node.classList.add(status);
+    const small = node.querySelector("small");
+    if (small) {
+        small.textContent = message;
+    }
+}
+
+function isLocalhost() {
+    return ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
 }
 
 async function readJson(path) {

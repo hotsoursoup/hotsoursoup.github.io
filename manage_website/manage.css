@@ -75,12 +75,90 @@ button:hover {
 
 .manager-header,
 .status-panel,
+.starter-panel,
 .workspace,
 .panel {
     border: 1px solid rgba(255, 255, 255, 0.74);
     background: var(--glass);
     box-shadow: var(--shadow);
     backdrop-filter: blur(24px) saturate(150%);
+}
+
+.starter-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    gap: 14px;
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: 24px;
+}
+
+.starter-copy,
+.requirements-card {
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.62);
+    padding: 16px;
+}
+
+.big-steps {
+    display: grid;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding-left: 1.25rem;
+}
+
+.big-steps li {
+    padding-left: 4px;
+}
+
+.requirements-list {
+    display: grid;
+    gap: 9px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.requirements-list li {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 8px 10px;
+    align-items: start;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.62);
+}
+
+.requirements-list li > span {
+    width: 12px;
+    aspect-ratio: 1;
+    margin-top: 5px;
+    border-radius: 50%;
+    background: #b8c0ce;
+}
+
+.requirements-list li strong,
+.requirements-list li small {
+    grid-column: 2;
+}
+
+.requirements-list li small {
+    color: var(--muted);
+}
+
+.requirements-list li.ok > span {
+    background: var(--ok);
+    box-shadow: 0 0 16px rgba(40, 183, 107, 0.48);
+}
+
+.requirements-list li.warn > span {
+    background: #f0a202;
+}
+
+.requirements-list li.bad > span {
+    background: var(--danger);
 }
 
 .manager-header {
@@ -127,6 +205,12 @@ h3 {
 .lede {
     max-width: 660px;
     margin: 12px 0 0;
+    color: var(--muted);
+}
+
+.panel-help {
+    max-width: 620px;
+    margin: 8px 0 0;
     color: var(--muted);
 }
 
@@ -373,6 +457,7 @@ textarea:focus {
 
 @media (max-width: 900px) {
     .manager-header,
+    .starter-panel,
     .status-panel,
     .panel-heading,
     .managed-post {

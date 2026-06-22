@@ -36,9 +36,33 @@ Posts do not need author names because each author has their own JSON file.
 
 The easiest option is the local manager:
 
+On Windows, double-click:
+
+```text
+start_manager.bat
+```
+
+That opens a helper script called `start_manager.ps1`, checks for a real Python 3 install, starts the local server, then opens the manager.
+
+On Mac, double-click:
+
+```text
+start_manager_mac.command
+```
+
+If macOS refuses to open it, right-click it, choose `Open`, then confirm. Or start it manually:
+
+If it says the file is not allowed to execute, run this once in Terminal:
+
+```bash
+chmod +x start_manager_mac.command
+```
+
 ```powershell
 python -m http.server 8000
 ```
+
+If Windows says Python is missing, install Python 3 from `https://www.python.org/downloads/` and tick `Add python.exe to PATH` during installation.
 
 Then open:
 

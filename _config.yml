@@ -1,3 +1,6 @@
 exclude:
   - manage_website/
   - manage_website_backups/
+  - start_manager.bat
+  - start_manager.ps1
+  - start_manager_mac.command

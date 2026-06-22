@@ -35,7 +35,8 @@ const els = {
     clearFilters: document.querySelector("#clear-filters"),
     emptyTemplate: document.querySelector("#empty-state-template"),
     musicButton: document.querySelector("[data-music-toggle]"),
-    beatButton: document.querySelector("[data-beat-toggle]")
+    beatButton: document.querySelector("[data-beat-toggle]"),
+    audioStatus: document.querySelector("[data-audio-status]")
 };
 
 async function loadJson(path) {
@@ -412,21 +413,47 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-function toggleMusic() {
-    state.musicOn = !state.musicOn;
-    els.musicButton.setAttribute("aria-pressed", String(state.musicOn));
-    els.musicButton.classList.toggle("playing", state.musicOn);
-
+async function toggleMusic() {
     if (state.musicOn) {
-        startMusic();
-    } else {
+        state.musicOn = false;
+        els.musicButton.setAttribute("aria-pressed", "false");
+        els.musicButton.classList.remove("playing");
         stopMusic();
+        updateAudioStatus();
+        return;
+    }
+
+    const started = await startMusic();
+    state.musicOn = started;
+    els.musicButton.setAttribute("aria-pressed", String(started));
+    els.musicButton.classList.toggle("playing", started);
+    updateAudioStatus(started ? null : "audio blocked");
+}
+
+function updateAudioStatus(message) {
+    if (!els.audioStatus) {
+        return;
+    }
+    if (message) {
+        els.audioStatus.textContent = message;
+        return;
+    }
+
+    if (state.musicOn && state.beatOn) {
+        els.audioStatus.textContent = "perlin + jungle online";
+    } else if (state.musicOn) {
+        els.audioStatus.textContent = "perlin music online";
+    } else if (state.beatOn) {
+        els.audioStatus.textContent = "jungle beat online";
+    } else {
+        els.audioStatus.textContent = "audio idle";
     }
 }
 
 async function getAudioContext() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) {
+        updateAudioStatus("audio not supported");
         return null;
     }
 
@@ -444,7 +471,7 @@ async function getAudioContext() {
 async function startMusic() {
     const context = await getAudioContext();
     if (!context) {
-        return;
+        return false;
     }
 
     const master = context.createGain();
@@ -480,6 +507,7 @@ async function startMusic() {
     wet.connect(master);
     master.connect(context.destination);
     master.gain.exponentialRampToValueAtTime(0.085, context.currentTime + 0.8);
+    playMusicPing(context, master, context.currentTime + 0.02);
 
     const tick = () => {
         if (!state.musicOn) {
@@ -502,6 +530,22 @@ async function startMusic() {
 
     tick();
     state.music = { context, voices, master, rafId, filter, delay, feedback, wet };
+    return true;
+}
+
+function playMusicPing(context, destination, time) {
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, time);
+    osc.frequency.exponentialRampToValueAtTime(660, time + 0.18);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(0.09, time + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.32);
+    osc.connect(gain);
+    gain.connect(destination);
+    osc.start(time);
+    osc.stop(time + 0.34);
 }
 
 function createMusicVoices(context) {
@@ -566,22 +610,27 @@ function stopMusic() {
     state.music = { context };
 }
 
-function toggleBeat() {
-    state.beatOn = !state.beatOn;
-    els.beatButton.setAttribute("aria-pressed", String(state.beatOn));
-    els.beatButton.classList.toggle("playing", state.beatOn);
-
+async function toggleBeat() {
     if (state.beatOn) {
-        startBeat();
-    } else {
+        state.beatOn = false;
+        els.beatButton.setAttribute("aria-pressed", "false");
+        els.beatButton.classList.remove("playing");
         stopBeat();
+        updateAudioStatus();
+        return;
     }
+
+    const started = await startBeat();
+    state.beatOn = started;
+    els.beatButton.setAttribute("aria-pressed", String(started));
+    els.beatButton.classList.toggle("playing", started);
+    updateAudioStatus(started ? null : "audio blocked");
 }
 
 async function startBeat() {
     const context = await getAudioContext();
     if (!context) {
-        return;
+        return false;
     }
 
     const master = context.createGain();
@@ -601,6 +650,8 @@ async function startBeat() {
     master.connect(compressor);
     compressor.connect(context.destination);
     master.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.35);
+    playKick(context, master, context.currentTime + 0.02);
+    playHat(context, master, context.currentTime + 0.05, 0.08);
 
     const schedule = () => {
         while (nextTime < context.currentTime + 0.16) {
@@ -613,6 +664,7 @@ async function startBeat() {
     schedule();
     timer = window.setInterval(schedule, 35);
     state.beat = { context, master, timer };
+    return true;
 }
 
 function scheduleJungleStep(context, destination, step, time) {

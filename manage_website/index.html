@@ -13,10 +13,31 @@
             <div>
                 <p class="eyebrow">local control room</p>
                 <h1>Hot Sour Soup Manager</h1>
-                <p class="lede">Create posts, reorder feeds, edit themes, and tune site settings directly on your computer.</p>
+                <p class="lede">Big buttons. Plain steps. Create posts, reorder feeds, edit themes, and tune site settings directly on your computer.</p>
             </div>
             <button type="button" id="connect-folder" class="primary-action">Choose Site Folder</button>
         </header>
+
+        <section class="starter-panel" aria-label="Start here">
+            <div class="starter-copy">
+                <p class="eyebrow">start here</p>
+                <h2>Three clicks, then write.</h2>
+                <ol class="big-steps">
+                    <li><strong>Open locally.</strong> Use `start_manager.bat` on Windows or `start_manager_mac.command` on Mac.</li>
+                    <li><strong>Choose folder.</strong> Click `Choose Site Folder` and select `hotsoursoup.github.io`.</li>
+                    <li><strong>Create post.</strong> Open `Create Post`, choose `Himanshu` or `Aryan`, save, then type your name to confirm.</li>
+                </ol>
+            </div>
+            <div class="requirements-card">
+                <p class="eyebrow">requirements</p>
+                <ul class="requirements-list">
+                    <li id="req-browser"><span></span><strong>Chrome or Edge</strong><small>Needed so the page can edit local JSON files.</small></li>
+                    <li id="req-localhost"><span></span><strong>Localhost</strong><small>Open from `http://localhost:8000/manage_website/`.</small></li>
+                    <li id="req-folder"><span></span><strong>Site Folder</strong><small>Not chosen yet.</small></li>
+                    <li id="req-python"><span></span><strong>Python</strong><small>The launch scripts check this before starting the local server.</small></li>
+                </ul>
+            </div>
+        </section>
 
         <section class="status-panel" aria-live="polite">
             <div>
@@ -61,6 +82,7 @@
                     <div>
                         <p class="eyebrow">create or edit</p>
                         <h2 id="editor-title">Create Post</h2>
+                        <p class="panel-help">Pick the author first. The manager will refuse to save unless you type that author's exact name.</p>
                     </div>
                     <div class="inline-actions">
                         <button type="button" id="new-post">New Blank Post</button>
@@ -169,15 +191,17 @@
                     </div>
                 </div>
                 <div class="walkthrough">
-                    <h3>1. Start the local server</h3>
-                    <p>Run `python -m http.server 8000` from the repo folder, then open `http://localhost:8000/manage_website/` in Chrome or Edge.</p>
-                    <h3>2. Choose the repo folder</h3>
+                    <h3>1. Start the manager</h3>
+                    <p>Windows: double-click `start_manager.bat`. Mac: double-click `start_manager_mac.command`. If the script says Python is missing, install Python 3.</p>
+                    <h3>2. Use the right browser</h3>
+                    <p>Use Chrome or Edge. Safari and Firefox usually cannot give this page permission to edit local files.</p>
+                    <h3>3. Choose the repo folder</h3>
                     <p>Click `Choose Site Folder` and select the `hotsoursoup.github.io` folder. The manager will load `site.config.json`, `himanshu.json`, and `aryan.json`.</p>
-                    <h3>3. Create posts</h3>
+                    <h3>4. Create posts</h3>
                     <p>Use `Create Post`, choose the author, add title/date/tags/theme, then build content blocks. Local image filenames should match files placed in that author's image folder.</p>
-                    <h3>4. Confirm identity before writes</h3>
+                    <h3>5. Confirm identity before writes</h3>
                     <p>Saving, deleting, or resequencing an author's posts asks you to type that author's display name exactly, such as `Aryan` or `Himanshu`.</p>
-                    <h3>5. Publish</h3>
+                    <h3>6. Publish</h3>
                     <p>After saving locally, review the public pages, then commit and push from Git. This manager does not publish by itself.</p>
                     <h3>Creative bits</h3>
                     <p>Draft posts stay hidden from the public site. The post board can reorder posts. The theme lab edits reusable post themes. The preview panel gives a quick read before you save.</p>
