@@ -8,8 +8,18 @@ const state = {
         search: ""
     },
     audio: null,
-    radioOn: false
+    radioOn: false,
+    visualTheme: "aura"
 };
+
+const visualThemes = [
+    { value: "aura", label: "Light Aura" },
+    { value: "neon", label: "Dark Neon" },
+    { value: "matrix", label: "Matrix" },
+    { value: "plasma", label: "Plasma" },
+    { value: "mono", label: "Mono Glass" },
+    { value: "sunset", label: "Solar Pop" }
+];
 
 const els = {
     posts: document.querySelector("#posts"),
@@ -17,6 +27,7 @@ const els = {
     authorFilter: document.querySelector("#author-filter"),
     tagFilter: document.querySelector("#tag-filter"),
     themeFilter: document.querySelector("#theme-filter"),
+    visualTheme: document.querySelector("#visual-theme"),
     searchFilter: document.querySelector("#search-filter"),
     clearFilters: document.querySelector("#clear-filters"),
     emptyTemplate: document.querySelector("#empty-state-template"),
@@ -46,7 +57,9 @@ async function init() {
 
         state.posts = postGroups.flat().sort((a, b) => b.date.localeCompare(a.date));
         state.filters.author = getInitialAuthor(authorEntries);
+        state.visualTheme = getInitialVisualTheme();
 
+        applyVisualTheme(state.visualTheme);
         buildFilters();
         bindEvents();
         setActiveNav();
@@ -93,6 +106,7 @@ function buildFilters() {
     fillSelect(els.authorFilter, [{ value: "all", label: "All authors" }, ...authors], state.filters.author);
     fillSelect(els.tagFilter, [{ value: "all", label: "All tags" }, ...tags.map((tag) => ({ value: tag, label: tag }))]);
     fillSelect(els.themeFilter, [{ value: "all", label: "All themes" }, ...themes]);
+    fillSelect(els.visualTheme, visualThemes, state.visualTheme);
 }
 
 function fillSelect(select, options, selected = "all") {
@@ -119,6 +133,11 @@ function bindEvents() {
     els.themeFilter.addEventListener("change", () => {
         state.filters.theme = els.themeFilter.value;
         render();
+    });
+    els.visualTheme.addEventListener("change", () => {
+        state.visualTheme = els.visualTheme.value;
+        applyVisualTheme(state.visualTheme);
+        localStorage.setItem("hotSourSoupTheme", state.visualTheme);
     });
     els.searchFilter.addEventListener("input", () => {
         state.filters.search = els.searchFilter.value.trim().toLowerCase();
@@ -148,6 +167,28 @@ function bindEvents() {
         render();
     });
     els.radioButton.addEventListener("click", toggleRadio);
+}
+
+function getInitialVisualTheme() {
+    const requestedTheme = new URLSearchParams(window.location.search).get("style");
+    const savedTheme = localStorage.getItem("hotSourSoupTheme");
+    const validThemes = new Set(visualThemes.map((theme) => theme.value));
+
+    if (validThemes.has(requestedTheme)) {
+        return requestedTheme;
+    }
+
+    if (validThemes.has(savedTheme)) {
+        return savedTheme;
+    }
+
+    return "aura";
+}
+
+function applyVisualTheme(theme) {
+    const validThemes = new Set(visualThemes.map((item) => item.value));
+    const nextTheme = validThemes.has(theme) ? theme : "aura";
+    document.documentElement.dataset.visualTheme = nextTheme;
 }
 
 function getInitialAuthor(authorEntries) {

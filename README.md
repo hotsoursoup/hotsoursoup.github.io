@@ -12,7 +12,7 @@ A tiny static journal for Himanshu and Aryan. It runs on GitHub Pages with plain
 - `himanshu_images/` stores local images for Himanshu posts.
 - `aryan_images/` stores local images for Aryan posts.
 - `posts.js` loads config and posts, then renders filters and cards.
-- `style.css` controls the futuristic glass layout.
+- `style.css` controls the compact futuristic glass layout and visual styles.
 
 ## Changing Author Names
 
@@ -179,10 +179,21 @@ The site automatically builds filters for:
 
 - author
 - tag
-- theme
+- post theme
 - search text
 
 Tags come from the `tag` and `tags` fields in each post.
+
+The `Visual Style` dropdown changes the whole site mood. Current styles are:
+
+- Light Aura
+- Dark Neon
+- Matrix
+- Plasma
+- Mono Glass
+- Solar Pop
+
+The selected visual style is saved in the browser, so it stays selected on the next visit.
 
 ## Local Testing
 
