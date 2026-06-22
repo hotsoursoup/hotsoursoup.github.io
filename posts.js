@@ -45,7 +45,7 @@ async function init() {
         );
 
         state.posts = postGroups.flat().sort((a, b) => b.date.localeCompare(a.date));
-        state.filters.author = document.body.dataset.defaultAuthor || "all";
+        state.filters.author = getInitialAuthor(authorEntries);
 
         buildFilters();
         bindEvents();
@@ -120,6 +120,20 @@ function bindEvents() {
         state.filters.search = els.searchFilter.value.trim().toLowerCase();
         render();
     });
+    const currentPage = window.location.pathname.split("/").pop();
+    const canFilterInPlace = currentPage === "" || currentPage === "index.html";
+    document.querySelectorAll("[data-nav-author]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+            if (!canFilterInPlace) {
+                return;
+            }
+
+            event.preventDefault();
+            setAuthorFilter(link.dataset.navAuthor);
+            const url = link.dataset.navAuthor === "all" ? "index.html" : `index.html?author=${link.dataset.navAuthor}`;
+            window.history.pushState({}, "", url);
+        });
+    });
     els.clearFilters.addEventListener("click", () => {
         state.filters = { author: "all", tag: "all", theme: "all", search: "" };
         els.authorFilter.value = "all";
@@ -130,6 +144,25 @@ function bindEvents() {
         render();
     });
     els.radioButton.addEventListener("click", toggleRadio);
+}
+
+function getInitialAuthor(authorEntries) {
+    const authors = new Set(authorEntries.map(([authorId]) => authorId));
+    const requestedAuthor = new URLSearchParams(window.location.search).get("author");
+    const defaultAuthor = document.body.dataset.defaultAuthor || "all";
+
+    if (requestedAuthor === "all" || authors.has(requestedAuthor)) {
+        return requestedAuthor;
+    }
+
+    return authors.has(defaultAuthor) ? defaultAuthor : "all";
+}
+
+function setAuthorFilter(author) {
+    state.filters.author = author || "all";
+    els.authorFilter.value = state.filters.author;
+    setActiveNav();
+    render();
 }
 
 function setActiveNav() {
