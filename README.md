@@ -12,7 +12,7 @@ A tiny static journal for Himanshu and Aryan. It runs on GitHub Pages with plain
 - `himanshu_images/` stores local images for Himanshu posts.
 - `aryan_images/` stores local images for Aryan posts.
 - `posts.js` loads config and posts, then renders filters and cards.
-- `style.css` controls the retro tranquil look.
+- `style.css` controls the futuristic glass layout.
 
 ## Changing Author Names
 
@@ -155,11 +155,11 @@ Themes live in `site.config.json` under `postThemes`.
 
 ```json
 "porcelain": {
-  "label": "Porcelain",
-  "accent": "#ad7b55",
-  "paper": "#fffdf8",
-  "tint": "#f5ead7",
-  "border": "#dfc8aa"
+  "label": "Prism",
+  "accent": "#00d5ff",
+  "paper": "rgba(255, 255, 255, 0.78)",
+  "tint": "rgba(0, 213, 255, 0.18)",
+  "border": "rgba(255, 255, 255, 0.72)"
 }
 ```
 
@@ -169,7 +169,9 @@ Use the theme key in a post:
 "theme": "porcelain"
 ```
 
-Current themes: `porcelain`, `matcha`, `sunprint`, `ink`.
+Current theme keys: `porcelain`, `matcha`, `sunprint`, `ink`.
+
+Current theme labels: Prism, Limewave, Solar, Ultraviolet.
 
 ## Filters
 
@@ -196,4 +198,4 @@ Then open `http://localhost:8000`.
 
 ## Tiny Fun Feature
 
-The `soup radio` button uses the browser's built-in Web Audio API to play a very quiet generated tone. There is no audio file and nothing external to host.
+The `signal tone` button uses the browser's built-in Web Audio API to play a very quiet generated tone. There is no audio file and nothing external to host.

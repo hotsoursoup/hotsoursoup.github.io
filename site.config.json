@@ -21,32 +21,32 @@
   },
   "postThemes": {
     "porcelain": {
-      "label": "Porcelain",
-      "accent": "#ad7b55",
-      "paper": "#fffdf8",
-      "tint": "#f5ead7",
-      "border": "#dfc8aa"
+      "label": "Prism",
+      "accent": "#00d5ff",
+      "paper": "rgba(255, 255, 255, 0.78)",
+      "tint": "rgba(0, 213, 255, 0.18)",
+      "border": "rgba(255, 255, 255, 0.72)"
     },
     "matcha": {
-      "label": "Matcha",
-      "accent": "#6e8261",
-      "paper": "#fbfff7",
-      "tint": "#e8f0df",
-      "border": "#c8d6bb"
+      "label": "Limewave",
+      "accent": "#a7ff6b",
+      "paper": "rgba(255, 255, 255, 0.76)",
+      "tint": "rgba(167, 255, 107, 0.18)",
+      "border": "rgba(255, 255, 255, 0.72)"
     },
     "sunprint": {
-      "label": "Sunprint",
-      "accent": "#b6862f",
-      "paper": "#fffaf0",
-      "tint": "#f8e7b9",
-      "border": "#e2c57e"
+      "label": "Solar",
+      "accent": "#ffd166",
+      "paper": "rgba(255, 255, 255, 0.78)",
+      "tint": "rgba(255, 209, 102, 0.20)",
+      "border": "rgba(255, 255, 255, 0.72)"
     },
     "ink": {
-      "label": "Ink",
-      "accent": "#56677e",
-      "paper": "#fafcff",
-      "tint": "#e1e8f0",
-      "border": "#bac8d7"
+      "label": "Ultraviolet",
+      "accent": "#7b61ff",
+      "paper": "rgba(255, 255, 255, 0.76)",
+      "tint": "rgba(123, 97, 255, 0.18)",
+      "border": "rgba(255, 255, 255, 0.72)"
     }
   }
 }

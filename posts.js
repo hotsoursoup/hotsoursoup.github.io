@@ -55,7 +55,7 @@ async function init() {
         els.posts.innerHTML = "";
         const box = document.createElement("article");
         box.className = "empty-state";
-        box.innerHTML = `<p class="eyebrow">loading error</p><h2>The soup did not simmer.</h2><p>${escapeHtml(error.message)}</p>`;
+        box.innerHTML = `<p class="eyebrow">loading error</p><h2>The signal did not lock.</h2><p>${escapeHtml(error.message)}</p>`;
         els.posts.append(box);
         els.count.textContent = "Could not load posts.";
     }
@@ -81,10 +81,14 @@ function buildFilters() {
         label: author.displayName
     }));
     const tags = [...new Set(state.posts.flatMap((post) => post.tags))].sort();
-    const themes = Object.entries(state.config.postThemes).map(([id, theme]) => ({
-        value: id,
-        label: theme.label
-    }));
+    const visibleThemeIds = [...new Set(state.posts.map((post) => post.theme))].sort();
+    const themes = visibleThemeIds.map((id) => {
+        const theme = state.config.postThemes[id] || { label: id };
+        return {
+            value: id,
+            label: theme.label
+        };
+    });
 
     fillSelect(els.authorFilter, [{ value: "all", label: "All authors" }, ...authors], state.filters.author);
     fillSelect(els.tagFilter, [{ value: "all", label: "All tags" }, ...tags.map((tag) => ({ value: tag, label: tag }))]);
@@ -182,7 +186,7 @@ function render() {
     }
 
     const noun = posts.length === 1 ? "post" : "posts";
-    els.count.textContent = `${posts.length} ${noun} glowing on the shelf`;
+    els.count.textContent = `${posts.length} ${noun} online in the feed`;
 }
 
 function filteredPosts() {
