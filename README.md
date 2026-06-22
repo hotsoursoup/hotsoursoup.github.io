@@ -4,7 +4,7 @@ A tiny static journal for Himanshu and Aryan. It runs on GitHub Pages with plain
 
 ## File Map
 
-- `index.html` opens Himanshu's log by default.
+- `index.html` opens the all-author feed by default.
 - `aryan.html` opens Aryan's log by default.
 - `site.config.json` stores the site title, author names, image folders, and reusable post themes.
 - `himanshu.json` stores Himanshu's posts.
@@ -13,6 +13,8 @@ A tiny static journal for Himanshu and Aryan. It runs on GitHub Pages with plain
 - `aryan_images/` stores local images for Aryan posts.
 - `posts.js` loads config and posts, then renders filters and cards.
 - `style.css` controls the compact futuristic glass layout and visual styles.
+- `manage_website/` contains the local control room for creating posts, editing posts, changing themes, and updating site settings.
+- `_config.yml` excludes the manager from GitHub Pages builds so it stays a local utility.
 
 ## Changing Author Names
 
@@ -31,6 +33,22 @@ Edit `site.config.json` only:
 Posts do not need author names because each author has their own JSON file.
 
 ## Adding A New Post
+
+The easiest option is the local manager:
+
+```powershell
+python -m http.server 8000
+```
+
+Then open:
+
+```text
+http://localhost:8000/manage_website/
+```
+
+Choose the repo folder, open `Create Post`, and save. The manager will ask you to type the author's display name before it changes that author's post file.
+
+The manager is committed into the repo for convenience, but it is excluded from the public GitHub Pages build.
 
 Add a new object to the top of `himanshu.json` or `aryan.json`:
 
@@ -207,6 +225,8 @@ python -m http.server 8000
 
 Then open `http://localhost:8000`.
 
+The local manager lives at `http://localhost:8000/manage_website/`.
+
 ## Tiny Fun Feature
 
-The `signal tone` button uses the browser's built-in Web Audio API to play a very quiet generated tone. There is no audio file and nothing external to host.
+The `perlin music` button uses the browser's built-in Web Audio API to play quiet generated ambient music. It uses a small Perlin-style noise function to steer note choices, pitch drift, filter movement, and delay timing. There is no audio file and nothing external to host.

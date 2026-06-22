@@ -7,8 +7,8 @@ const state = {
         theme: "all",
         search: ""
     },
-    audio: null,
-    radioOn: false,
+    music: null,
+    musicOn: false,
     visualTheme: "aura"
 };
 
@@ -31,7 +31,7 @@ const els = {
     searchFilter: document.querySelector("#search-filter"),
     clearFilters: document.querySelector("#clear-filters"),
     emptyTemplate: document.querySelector("#empty-state-template"),
-    radioButton: document.querySelector("[data-radio-toggle]")
+    musicButton: document.querySelector("[data-radio-toggle]")
 };
 
 async function loadJson(path) {
@@ -166,7 +166,7 @@ function bindEvents() {
         setActiveNav();
         render();
     });
-    els.radioButton.addEventListener("click", toggleRadio);
+    els.musicButton.addEventListener("click", toggleMusic);
 }
 
 function getInitialVisualTheme() {
@@ -407,56 +407,161 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-function toggleRadio() {
-    state.radioOn = !state.radioOn;
-    els.radioButton.setAttribute("aria-pressed", String(state.radioOn));
-    els.radioButton.classList.toggle("playing", state.radioOn);
+function toggleMusic() {
+    state.musicOn = !state.musicOn;
+    els.musicButton.setAttribute("aria-pressed", String(state.musicOn));
+    els.musicButton.classList.toggle("playing", state.musicOn);
 
-    if (state.radioOn) {
-        startRadio();
+    if (state.musicOn) {
+        startMusic();
     } else {
-        stopRadio();
+        stopMusic();
     }
 }
 
-function startRadio() {
+function startMusic() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) {
         return;
     }
-    const context = state.audio?.context || new AudioContext();
-    const gain = context.createGain();
+
+    const context = state.music?.context || new AudioContext();
+    const master = context.createGain();
     const filter = context.createBiquadFilter();
-    const oscillator = context.createOscillator();
-    const shimmer = context.createOscillator();
+    const delay = context.createDelay(1.6);
+    const feedback = context.createGain();
+    const wet = context.createGain();
+    const voices = createMusicVoices(context);
+    const seed = Math.random() * 1000;
+    let rafId = 0;
+    let stepTimer = 0;
+    let step = 0;
 
-    oscillator.type = "sine";
-    oscillator.frequency.value = 174;
-    shimmer.type = "triangle";
-    shimmer.frequency.value = 261.63;
+    master.gain.value = 0.0001;
     filter.type = "lowpass";
-    filter.frequency.value = 700;
-    gain.gain.value = 0.025;
+    filter.frequency.value = 980;
+    filter.Q.value = 0.8;
+    delay.delayTime.value = 0.34;
+    feedback.gain.value = 0.22;
+    wet.gain.value = 0.26;
 
-    oscillator.connect(filter);
-    shimmer.connect(filter);
-    filter.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    shimmer.start();
+    voices.forEach((voice) => {
+        voice.gain.gain.value = 0;
+        voice.oscillator.connect(voice.gain);
+        voice.gain.connect(filter);
+        voice.oscillator.start();
+    });
+    filter.connect(master);
+    filter.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(wet);
+    wet.connect(master);
+    master.connect(context.destination);
+    master.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 1.1);
 
-    state.audio = { context, oscillator, shimmer, gain };
+    const tick = () => {
+        if (!state.musicOn) {
+            return;
+        }
+
+        const now = context.currentTime;
+        const movement = (perlin1D(now * 0.035 + seed) + 1) / 2;
+        filter.frequency.setTargetAtTime(520 + movement * 1650, now, 0.45);
+        delay.delayTime.setTargetAtTime(0.22 + movement * 0.26, now, 0.65);
+
+        if (now >= stepTimer) {
+            playPerlinStep({ context, voices, seed, step });
+            step += 1;
+            stepTimer = now + 0.42 + ((perlin1D(seed + step * 0.19) + 1) / 2) * 0.42;
+        }
+
+        rafId = requestAnimationFrame(tick);
+    };
+
+    tick();
+    state.music = { context, voices, master, rafId };
 }
 
-function stopRadio() {
-    if (!state.audio) {
+function createMusicVoices(context) {
+    const voiceSettings = [
+        { type: "sine", level: 0.020, octave: 1 },
+        { type: "triangle", level: 0.014, octave: 2 },
+        { type: "sine", level: 0.009, octave: 0.5 }
+    ];
+
+    return voiceSettings.map((setting) => ({
+        ...setting,
+        oscillator: context.createOscillator(),
+        gain: context.createGain()
+    })).map((voice) => {
+        voice.oscillator.type = voice.type;
+        return voice;
+    });
+}
+
+function playPerlinStep({ context, voices, seed, step }) {
+    const scale = [0, 2, 4, 7, 9, 11, 14, 16];
+    const root = 146.83;
+    const shape = (perlin1D(seed + step * 0.31) + 1) / 2;
+    const drift = (perlin1D(seed * 0.7 + step * 0.13) + 1) / 2;
+    const degree = Math.min(scale.length - 1, Math.floor(shape * scale.length));
+    const baseFrequency = root * Math.pow(2, scale[degree] / 12);
+    const now = context.currentTime;
+
+    voices.forEach((voice, index) => {
+        const offset = perlin1D(seed + step * 0.17 + index * 12.7) * 5.5;
+        const frequency = baseFrequency * voice.octave * Math.pow(2, offset / 1200);
+        const attack = 0.03 + index * 0.025;
+        const release = 0.55 + drift * 1.15 + index * 0.18;
+        const peak = voice.level * (0.5 + shape * 0.9);
+
+        voice.oscillator.frequency.setTargetAtTime(frequency, now, 0.09 + index * 0.04);
+        voice.gain.gain.cancelScheduledValues(now);
+        voice.gain.gain.setTargetAtTime(peak, now, attack);
+        voice.gain.gain.setTargetAtTime(0.0001, now + 0.18, release);
+    });
+}
+
+function stopMusic() {
+    if (!state.music) {
         return;
     }
-    const { oscillator, shimmer, gain, context } = state.audio;
-    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.25);
-    oscillator.stop(context.currentTime + 0.3);
-    shimmer.stop(context.currentTime + 0.3);
-    state.audio = { context };
+
+    const { context, voices, master, rafId } = state.music;
+    const now = context.currentTime;
+    cancelAnimationFrame(rafId);
+    master.gain.cancelScheduledValues(now);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+    voices.forEach((voice) => {
+        voice.gain.gain.cancelScheduledValues(now);
+        voice.gain.gain.setTargetAtTime(0.0001, now, 0.08);
+        voice.oscillator.stop(now + 0.55);
+    });
+    state.music = { context };
+}
+
+function perlin1D(value) {
+    const left = Math.floor(value);
+    const right = left + 1;
+    const local = value - left;
+    const eased = fade(local);
+    const a = gradient(left) * local;
+    const b = gradient(right) * (local - 1);
+    return lerp(a, b, eased) * 2;
+}
+
+function gradient(index) {
+    const x = Math.sin(index * 127.1 + 311.7) * 43758.5453123;
+    return (x - Math.floor(x)) < 0.5 ? -1 : 1;
+}
+
+function fade(value) {
+    return value * value * value * (value * (value * 6 - 15) + 10);
+}
+
+function lerp(a, b, amount) {
+    return a + (b - a) * amount;
 }
 
 init();

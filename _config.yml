@@ -1,0 +1,3 @@
+exclude:
+  - manage_website/
+  - manage_website_backups/

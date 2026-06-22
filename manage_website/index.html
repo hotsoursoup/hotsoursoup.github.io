@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Sour Soup Manager</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="manage.css">
+</head>
+<body>
+    <div class="manager-shell">
+        <header class="manager-header">
+            <div>
+                <p class="eyebrow">local control room</p>
+                <h1>Hot Sour Soup Manager</h1>
+                <p class="lede">Create posts, reorder feeds, edit themes, and tune site settings directly on your computer.</p>
+            </div>
+            <button type="button" id="connect-folder" class="primary-action">Choose Site Folder</button>
+        </header>
+
+        <section class="status-panel" aria-live="polite">
+            <div>
+                <span class="status-dot" id="status-dot"></span>
+                <strong id="connection-status">Not connected</strong>
+            </div>
+            <p id="status-message">Open this page through localhost, then choose the `hotsoursoup.github.io` folder.</p>
+        </section>
+
+        <main class="workspace" hidden>
+            <aside class="sidebar" aria-label="Manager sections">
+                <button type="button" class="tab-button active" data-tab="posts">Posts</button>
+                <button type="button" class="tab-button" data-tab="compose">Create Post</button>
+                <button type="button" class="tab-button" data-tab="themes">Post Themes</button>
+                <button type="button" class="tab-button" data-tab="site">Site Settings</button>
+                <button type="button" class="tab-button" data-tab="walkthrough">Walkthrough</button>
+            </aside>
+
+            <section class="panel active" id="posts-panel" data-panel="posts">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">manage posts</p>
+                        <h2>Feed Board</h2>
+                    </div>
+                    <div class="inline-actions">
+                        <select id="manage-author"></select>
+                        <button type="button" id="save-post-order">Save Order</button>
+                    </div>
+                </div>
+                <div class="utility-row">
+                    <input id="post-search" type="search" placeholder="Search posts, tags, content...">
+                    <label class="checkbox-label">
+                        <input id="show-drafts" type="checkbox" checked>
+                        Show drafts
+                    </label>
+                </div>
+                <div id="post-list" class="post-manager-list"></div>
+            </section>
+
+            <section class="panel" id="compose-panel" data-panel="compose">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">create or edit</p>
+                        <h2 id="editor-title">Create Post</h2>
+                    </div>
+                    <div class="inline-actions">
+                        <button type="button" id="new-post">New Blank Post</button>
+                        <button type="button" id="duplicate-post">Duplicate Current</button>
+                    </div>
+                </div>
+
+                <form id="post-form" class="editor-grid">
+                    <label>
+                        <span>Author</span>
+                        <select id="post-author"></select>
+                    </label>
+                    <label>
+                        <span>Post ID</span>
+                        <input id="post-id" required placeholder="my-post-id">
+                    </label>
+                    <label>
+                        <span>Title</span>
+                        <input id="post-title" required placeholder="A Bright Little Note">
+                    </label>
+                    <label>
+                        <span>Date</span>
+                        <input id="post-date" type="date" required>
+                    </label>
+                    <label>
+                        <span>Main Tag</span>
+                        <input id="post-tag" placeholder="note">
+                    </label>
+                    <label>
+                        <span>Tags</span>
+                        <input id="post-tags" placeholder="note, music, idea">
+                    </label>
+                    <label>
+                        <span>Post Theme</span>
+                        <select id="post-theme"></select>
+                    </label>
+                    <label class="checkbox-label field-checkbox">
+                        <input id="post-draft" type="checkbox">
+                        Draft
+                    </label>
+                    <label class="wide-field">
+                        <span>Content Blocks JSON</span>
+                        <textarea id="post-content" rows="16" spellcheck="false"></textarea>
+                    </label>
+                    <div class="wide-field helper-grid">
+                        <button type="button" data-insert-block="text">Add Text</button>
+                        <button type="button" data-insert-block="quote">Add Quote</button>
+                        <button type="button" data-insert-block="image">Add Image</button>
+                        <button type="button" data-insert-block="link">Add Link</button>
+                        <button type="button" data-insert-block="list">Add List</button>
+                        <button type="button" data-insert-block="gallery">Add Gallery</button>
+                        <button type="button" data-insert-block="code">Add Code</button>
+                    </div>
+                    <div class="wide-field preview-card">
+                        <p class="eyebrow">preview</p>
+                        <div id="post-preview"></div>
+                    </div>
+                    <div class="wide-field danger-zone">
+                        <button type="submit" class="primary-action">Save Post</button>
+                        <button type="button" id="delete-post" class="danger-action">Delete Post</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel" id="themes-panel" data-panel="themes">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">style system</p>
+                        <h2>Post Themes</h2>
+                    </div>
+                    <button type="button" id="add-theme">Add Theme</button>
+                </div>
+                <div id="theme-list" class="theme-list"></div>
+                <button type="button" id="save-themes" class="primary-action">Save Themes</button>
+            </section>
+
+            <section class="panel" id="site-panel" data-panel="site">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">global config</p>
+                        <h2>Site Settings</h2>
+                    </div>
+                    <button type="button" id="save-site-config" class="primary-action">Save Site Config</button>
+                </div>
+                <form id="site-form" class="editor-grid">
+                    <label>
+                        <span>Site Title</span>
+                        <input id="site-title">
+                    </label>
+                    <label>
+                        <span>Site Subtitle</span>
+                        <input id="site-subtitle">
+                    </label>
+                    <div class="wide-field">
+                        <p class="eyebrow">authors</p>
+                        <div id="author-settings" class="author-settings"></div>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel" id="walkthrough-panel" data-panel="walkthrough">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">field manual</p>
+                        <h2>Blogging Walkthrough</h2>
+                    </div>
+                </div>
+                <div class="walkthrough">
+                    <h3>1. Start the local server</h3>
+                    <p>Run `python -m http.server 8000` from the repo folder, then open `http://localhost:8000/manage_website/` in Chrome or Edge.</p>
+                    <h3>2. Choose the repo folder</h3>
+                    <p>Click `Choose Site Folder` and select the `hotsoursoup.github.io` folder. The manager will load `site.config.json`, `himanshu.json`, and `aryan.json`.</p>
+                    <h3>3. Create posts</h3>
+                    <p>Use `Create Post`, choose the author, add title/date/tags/theme, then build content blocks. Local image filenames should match files placed in that author's image folder.</p>
+                    <h3>4. Confirm identity before writes</h3>
+                    <p>Saving, deleting, or resequencing an author's posts asks you to type that author's display name exactly, such as `Aryan` or `Himanshu`.</p>
+                    <h3>5. Publish</h3>
+                    <p>After saving locally, review the public pages, then commit and push from Git. This manager does not publish by itself.</p>
+                    <h3>Creative bits</h3>
+                    <p>Draft posts stay hidden from the public site. The post board can reorder posts. The theme lab edits reusable post themes. The preview panel gives a quick read before you save.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <template id="post-card-template">
+        <article class="managed-post">
+            <div>
+                <p class="post-meta"></p>
+                <h3></h3>
+                <p class="post-tags"></p>
+            </div>
+            <div class="post-actions">
+                <button type="button" data-action="up">Up</button>
+                <button type="button" data-action="down">Down</button>
+                <button type="button" data-action="edit">Edit</button>
+                <button type="button" data-action="copy">Clone</button>
+            </div>
+        </article>
+    </template>
+
+    <script src="manage.js" defer></script>
+</body>
+</html>
