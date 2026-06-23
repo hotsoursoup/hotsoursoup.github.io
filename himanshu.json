@@ -1,70 +1,41 @@
 [
   {
-    "id": "git-pipeline",
-    "title": "Setting up the Git pipeline",
-    "date": "2026-06-22",
-    "tag": "devlog",
-    "tags": ["devlog", "setup", "github-pages"],
+    "id": "post-2026-06-23",
+    "title": "Max Verstappen.",
+    "date": "2026-06-23",
+    "tag": "F1",
+    "tags": [],
     "theme": "porcelain",
     "content": [
       {
-        "type": "text",
-        "text": "We finalized the static HTML architecture. Updates can now happen through tiny JSON files, which feels correct for a personal web corner: light, visible, and easy to tinker with."
-      },
-      {
-        "type": "link",
-        "text": "GitHub Pages",
-        "url": "https://pages.github.com/"
+        "type": "heading",
+        "text": "Who is Max Verstappen?"
       },
       {
         "type": "quote",
-        "text": "Small websites should feel like rooms you can rearrange without calling a contractor."
-      }
-    ]
-  },
-  {
-    "id": "hello-world",
-    "title": "Hello World",
-    "date": "2026-06-21",
-    "tag": "note",
-    "tags": ["note", "first-post"],
-    "theme": "sunprint",
-    "content": [
-      {
-        "type": "text",
-        "text": "Starting a minimal, non-bloated corner on the web. The plan is simple: write things, add images when they help, and keep the site playful enough that updating it does not feel like homework."
+        "text": "If my mum had balls, she'd be my dad."
       },
       {
-        "type": "list",
-        "items": ["raw HTML/CSS/JS", "separate post files", "tags and filters", "calm retro styling"]
-      }
-    ]
-  },
-  {
-    "id": "template-himanshu",
-    "title": "Template: image and remote image post",
-    "date": "2026-06-20",
-    "tag": "template",
-    "tags": ["template", "images"],
-    "theme": "ink",
-    "draft": true,
-    "content": [
-      {
         "type": "text",
-        "text": "Duplicate this object when you want a post with local and remote images. Set draft to false when it is ready."
+        "text": "Max Emilian Verstappen is a Dutch and Belgian racing driver who competes under the Dutch flag in Formula One for Red Bull Racing. Verstappen has won four Formula One World Drivers' Championship titles, which he won consecutively from 2021 to 2024 with Red Bull, and has won 71 Grands Prix across 12 seasons."
       },
       {
         "type": "image",
-        "src": "example-photo.jpg",
-        "alt": "Describe the local image here",
-        "caption": "Local images live in himanshu_images. Only the filename is needed."
+        "alt": "Portrait.",
+        "caption": "MV33.",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/52/2024-08-25_Motorsport%2C_Formel_1%2C_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3973_by_Stepro_%28medium_crop%29.jpg"
       },
       {
-        "type": "image",
-        "url": "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1200&q=80",
-        "alt": "A tranquil desk near a window",
-        "caption": "Remote images use url instead of src."
+        "type": "link",
+        "text": "Wiki",
+        "url": "https://en.wikipedia.org/wiki/Max_Verstappen"
+      },
+      {
+        "type": "code",
+        "language": "JSON",
+        "code": "[\n  {\n    \"type\": \"heading\",\n    \"text\": \"Who is Max Verstappen?\"\n  },\n  {\n    \"type\": \"quote\",\n    \"text\": \"If my mum had balls, she'd be my dad.\"\n  },\n  {\n    \"type\": \"text\",\n    \"text\": \"Max Emilian Verstappen is a Dutch and Belgian racing driver who competes under the Dutch flag in Formula One for Red Bull Racing. Verstappen has won four Formula One World Drivers' Championship titles, which he won consecutively from 2021 to 2024 with Red Bull, and has won 71 Grands Prix across 12 seasons.\"\n  },\n  {\n    \"type\": \"image\",\n    \"alt\": \"Portrait.\",\n    \"caption\": \"MV33.\",\n    \"url\": \"https://upload.wikimedia.org/wikipedia/commons/5/52/2024-08-25_Motorsport%2C_Formel_1%2C_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3973_by_Stepro_%28medium_crop%29.jpg\"\n  },\n  {\n    \"type\": \"link\",\n    \"text\": \"Wiki\",\n    \"url\": \"https://en.wikipedia.org/wiki/Max_Verstappen\"\n  },\n  {\n    \"type\": \"code\",\n    \"language\": \"txt\",\n    \"code\": \"line one\\\\nline two\"\n  }\n]"
       }
-    ]
+    ],
+    "draft": true
   }
 ]
