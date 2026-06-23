@@ -307,6 +307,8 @@ function renderBlock(block, post) {
     switch (block.type) {
         case "text":
             return element("p", "post-text", block.text);
+        case "heading":
+            return element("h3", "post-section-heading", block.text);
         case "quote":
             return element("blockquote", "", block.text);
         case "link":

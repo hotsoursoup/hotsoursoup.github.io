@@ -71,10 +71,11 @@ The manager loads:
 4. Open the `Create Post` tab.
 5. Choose the author.
 6. Fill title, date, tags, and post theme.
-7. Add/edit content blocks in the JSON editor, or use the insert buttons.
-8. Click `Save Post`.
-9. Type the author's exact name, such as `Himanshu` or `Aryan`.
-10. Check the public page locally, then commit and push.
+7. Build the post from scrapbook blocks. Use `+` to add text, heading, image, link, list, gallery, quote, or code.
+8. Move blocks with `Up` and `Down`, or remove a block with `X`.
+9. Click `Save Post`.
+10. Type the author's exact name, such as `Himanshu` or `Aryan`.
+11. Check the public page locally, then commit and push.
 
 ## Identity Confirmation
 
@@ -100,7 +101,8 @@ For global changes, such as post themes or site settings, either configured auth
 - Edit reusable post themes.
 - Edit site title, subtitle, and author settings.
 - Preview post content before saving.
-- Insert block templates for text, quote, image, link, list, gallery, and code.
+- Insert scrapbook blocks for heading, text, quote, image, link, list, gallery, and code.
+- Move and remove each draft block without touching raw JSON.
 
 ## Backups
 

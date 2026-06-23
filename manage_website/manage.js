@@ -2,6 +2,7 @@ const state = {
     root: null,
     config: null,
     postsByAuthor: {},
+    currentBlocks: [],
     selectedAuthor: "",
     editing: null,
     dirtyOrder: false
@@ -34,6 +35,9 @@ const els = {
     postTags: document.querySelector("#post-tags"),
     postTheme: document.querySelector("#post-theme"),
     postDraft: document.querySelector("#post-draft"),
+    blockType: document.querySelector("#block-type"),
+    addBlock: document.querySelector("#add-block"),
+    blockBuilder: document.querySelector("#block-builder"),
     postContent: document.querySelector("#post-content"),
     postPreview: document.querySelector("#post-preview"),
     newPost: document.querySelector("#new-post"),
@@ -51,6 +55,7 @@ const els = {
 
 const blockTemplates = {
     text: { type: "text", text: "Write a paragraph here." },
+    heading: { type: "heading", text: "A Small Section Heading" },
     quote: { type: "quote", text: "A highlighted thought." },
     image: { type: "image", src: "image-name.jpg", alt: "Describe the image", caption: "Optional caption." },
     link: { type: "link", text: "Open this", url: "https://example.com" },
@@ -79,7 +84,7 @@ function bindEvents() {
     els.showDrafts.addEventListener("change", renderPostList);
     els.savePostOrder.addEventListener("click", savePostOrder);
     els.postForm.addEventListener("submit", savePostFromForm);
-    els.postContent.addEventListener("input", renderPreview);
+    els.postContent.addEventListener("input", syncBlocksFromJson);
     els.postTitle.addEventListener("input", renderPreview);
     els.postTags.addEventListener("input", renderPreview);
     els.postTheme.addEventListener("change", renderPreview);
@@ -89,9 +94,9 @@ function bindEvents() {
     els.addTheme.addEventListener("click", addThemeCard);
     els.saveThemes.addEventListener("click", saveThemes);
     els.saveSiteConfig.addEventListener("click", saveSiteConfig);
-    document.querySelectorAll("[data-insert-block]").forEach((button) => {
-        button.addEventListener("click", () => insertBlock(button.dataset.insertBlock));
-    });
+    els.addBlock.addEventListener("click", () => insertBlock(els.blockType.value));
+    els.blockBuilder.addEventListener("input", updateBlockFromInput);
+    els.blockBuilder.addEventListener("click", handleBlockBuilderClick);
 }
 
 async function connectFolder() {
@@ -318,7 +323,9 @@ function loadPostIntoEditor(post, authorId, index = null) {
     els.postTags.value = (post.tags || []).join(", ");
     els.postTheme.value = post.theme || Object.keys(state.config.postThemes)[0] || "";
     els.postDraft.checked = Boolean(post.draft);
-    els.postContent.value = JSON.stringify(post.content || [], null, 2);
+    state.currentBlocks = structuredClone(post.content || []);
+    syncJsonFromBlocks();
+    renderBlockBuilder();
     renderPreview();
 }
 
@@ -390,15 +397,10 @@ function formToPost() {
 }
 
 function parseContent() {
-    try {
-        const content = JSON.parse(els.postContent.value || "[]");
-        if (!Array.isArray(content)) {
-            throw new Error("Content must be an array.");
-        }
-        return content;
-    } catch (error) {
-        throw new Error(`Content Blocks JSON is invalid: ${error.message}`);
+    if (!Array.isArray(state.currentBlocks)) {
+        throw new Error("The block editor is empty or broken. Add a block and try again.");
     }
+    return structuredClone(state.currentBlocks);
 }
 
 async function deleteCurrentPost() {
@@ -454,26 +456,14 @@ async function writeAuthorPosts(authorId) {
 }
 
 function insertBlock(type) {
-    let content;
-    try {
-        content = parseContent();
-    } catch (error) {
-        alert(error.message);
-        return;
-    }
-    content.push(structuredClone(blockTemplates[type]));
-    els.postContent.value = JSON.stringify(content, null, 2);
+    state.currentBlocks.push(structuredClone(blockTemplates[type] || blockTemplates.text));
+    syncJsonFromBlocks();
+    renderBlockBuilder();
     renderPreview();
 }
 
 function renderPreview() {
-    let content = [];
-    try {
-        content = JSON.parse(els.postContent.value || "[]");
-    } catch {
-        els.postPreview.innerHTML = "<p>Content JSON is not valid yet.</p>";
-        return;
-    }
+    const content = state.currentBlocks || [];
 
     const tags = csv(els.postTags.value).map((tag) => `#${escapeHtml(tag)}`).join(" ");
     els.postPreview.innerHTML = `
@@ -485,6 +475,7 @@ function renderPreview() {
 }
 
 function previewBlock(block) {
+    if (block.type === "heading") return `<h4>${escapeHtml(block.text || "")}</h4>`;
     if (block.type === "text") return `<p>${escapeHtml(block.text || "")}</p>`;
     if (block.type === "quote") return `<blockquote>${escapeHtml(block.text || "")}</blockquote>`;
     if (block.type === "link") return `<p>Link: ${escapeHtml(block.text || block.url || "")}</p>`;
@@ -493,6 +484,193 @@ function previewBlock(block) {
     if (block.type === "list") return `<p>List: ${(block.items || []).join(", ")}</p>`;
     if (block.type === "code") return `<pre>${escapeHtml(block.code || "")}</pre>`;
     return `<p>Unknown block: ${escapeHtml(block.type || "")}</p>`;
+}
+
+function renderBlockBuilder() {
+    const blocks = state.currentBlocks || [];
+    els.blockBuilder.innerHTML = "";
+
+    if (!blocks.length) {
+        const empty = document.createElement("article");
+        empty.className = "empty-builder";
+        empty.innerHTML = "<h3>No blocks yet.</h3><p>Choose a block type and press +.</p>";
+        els.blockBuilder.append(empty);
+        return;
+    }
+
+    blocks.forEach((block, index) => {
+        const card = document.createElement("article");
+        card.className = `block-card block-${block.type || "unknown"}`;
+        card.dataset.index = index;
+        card.innerHTML = `
+            <header class="block-card-header">
+                <div>
+                    <p class="eyebrow">block ${index + 1}</p>
+                    <h4>${blockLabel(block.type)}</h4>
+                </div>
+                <div class="block-actions">
+                    <button type="button" data-block-action="up" title="Move up">Up</button>
+                    <button type="button" data-block-action="down" title="Move down">Down</button>
+                    <button type="button" data-block-action="delete" class="mini-danger" title="Remove">X</button>
+                </div>
+            </header>
+            ${blockFields(block, index)}
+        `;
+        els.blockBuilder.append(card);
+    });
+}
+
+function blockFields(block, index) {
+    if (block.type === "text") {
+        return fieldTextarea(index, "text", "Text", block.text || "", "Write the paragraph here.");
+    }
+    if (block.type === "heading") {
+        return fieldInput(index, "text", "Heading", block.text || "", "A Small Section Heading");
+    }
+    if (block.type === "quote") {
+        return fieldTextarea(index, "text", "Quote", block.text || "", "A highlighted thought.");
+    }
+    if (block.type === "link") {
+        return `
+            ${fieldInput(index, "text", "Link Text", block.text || "", "Open this")}
+            ${fieldInput(index, "url", "URL", block.url || "", "https://example.com")}
+        `;
+    }
+    if (block.type === "image") {
+        return `
+            ${fieldInput(index, "src", "Local File Name", block.src || "", "photo.jpg")}
+            ${fieldInput(index, "url", "Remote Image URL", block.url || "", "https://example.com/photo.jpg")}
+            ${fieldInput(index, "alt", "Alt Text", block.alt || "", "Describe the image")}
+            ${fieldInput(index, "caption", "Caption", block.caption || "", "Optional caption")}
+            <p class="block-hint">Use either local file name or remote URL. Local files go in that author's image folder.</p>
+        `;
+    }
+    if (block.type === "gallery") {
+        const lines = (block.images || []).map((image) => image.src || image.url || "").join("\n");
+        return `
+            ${fieldTextarea(index, "imagesText", "Images", lines, "one-image.jpg\\nhttps://example.com/remote.jpg")}
+            <p class="block-hint">One image per line. Local filenames and remote URLs both work.</p>
+        `;
+    }
+    if (block.type === "list") {
+        return fieldTextarea(index, "itemsText", "List Items", (block.items || []).join("\n"), "first thing\nsecond thing");
+    }
+    if (block.type === "code") {
+        return `
+            ${fieldInput(index, "language", "Language", block.language || "txt", "js")}
+            ${fieldTextarea(index, "code", "Code", block.code || "", "paste code here")}
+        `;
+    }
+    return `<p class="block-hint">Unknown block type. Delete it or edit the JSON drawer.</p>`;
+}
+
+function fieldInput(index, key, label, value, placeholder) {
+    return `<label class="block-field"><span>${label}</span><input data-block-index="${index}" data-block-key="${key}" value="${escapeAttribute(value)}" placeholder="${escapeAttribute(placeholder)}"></label>`;
+}
+
+function fieldTextarea(index, key, label, value, placeholder) {
+    return `<label class="block-field wide-block-field"><span>${label}</span><textarea data-block-index="${index}" data-block-key="${key}" rows="4" placeholder="${escapeAttribute(placeholder)}">${escapeHtml(value)}</textarea></label>`;
+}
+
+function updateBlockFromInput(event) {
+    const target = event.target;
+    if (!target.matches("[data-block-index]")) {
+        return;
+    }
+
+    const index = Number(target.dataset.blockIndex);
+    const key = target.dataset.blockKey;
+    const block = state.currentBlocks[index];
+    if (!block) {
+        return;
+    }
+
+    if (key === "itemsText") {
+        block.items = lines(target.value);
+    } else if (key === "imagesText") {
+        block.images = lines(target.value).map((value) => {
+            const image = value.startsWith("http://") || value.startsWith("https://")
+                ? { url: value }
+                : { src: value };
+            image.alt = "Gallery image";
+            return image;
+        });
+    } else {
+        block[key] = target.value;
+    }
+
+    cleanupBlock(block);
+    syncJsonFromBlocks();
+    renderPreview();
+}
+
+function handleBlockBuilderClick(event) {
+    const button = event.target.closest("[data-block-action]");
+    if (!button) {
+        return;
+    }
+
+    const card = button.closest(".block-card");
+    const index = Number(card.dataset.index);
+    const action = button.dataset.blockAction;
+    const blocks = state.currentBlocks;
+
+    if (action === "delete") {
+        blocks.splice(index, 1);
+    }
+    if (action === "up" && index > 0) {
+        [blocks[index - 1], blocks[index]] = [blocks[index], blocks[index - 1]];
+    }
+    if (action === "down" && index < blocks.length - 1) {
+        [blocks[index + 1], blocks[index]] = [blocks[index], blocks[index + 1]];
+    }
+
+    syncJsonFromBlocks();
+    renderBlockBuilder();
+    renderPreview();
+}
+
+function syncBlocksFromJson() {
+    try {
+        const content = JSON.parse(els.postContent.value || "[]");
+        if (!Array.isArray(content)) {
+            throw new Error("Content must be an array.");
+        }
+        state.currentBlocks = content;
+        renderBlockBuilder();
+        renderPreview();
+    } catch {
+        els.postPreview.innerHTML = "<p>Advanced JSON is not valid yet.</p>";
+    }
+}
+
+function syncJsonFromBlocks() {
+    els.postContent.value = JSON.stringify(state.currentBlocks || [], null, 2);
+}
+
+function cleanupBlock(block) {
+    Object.keys(block).forEach((key) => {
+        if (block[key] === "") {
+            delete block[key];
+        }
+    });
+}
+
+function blockLabel(type) {
+    return {
+        text: "Text",
+        heading: "Heading",
+        quote: "Quote",
+        image: "Image",
+        link: "Link",
+        list: "List",
+        gallery: "Gallery",
+        code: "Code"
+    }[type] || "Unknown";
+}
+
+function lines(value) {
+    return value.split("\n").map((item) => item.trim()).filter(Boolean);
 }
 
 function renderThemes() {

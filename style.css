@@ -592,6 +592,13 @@ h1 {
     font-size: var(--body-size);
 }
 
+.post-section-heading {
+    margin: 1rem 0 0.55rem;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    line-height: 1.1;
+    letter-spacing: 0;
+}
+
 .post-body blockquote {
     margin: 14px 0;
     padding: 13px 15px;

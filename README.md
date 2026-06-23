@@ -70,7 +70,7 @@ Then open:
 http://localhost:8000/manage_website/
 ```
 
-Choose the repo folder, open `Create Post`, and save. The manager will ask you to type the author's display name before it changes that author's post file.
+Choose the repo folder, open `Create Post`, build the post from scrapbook blocks, and save. The manager will ask you to type the author's display name before it changes that author's post file.
 
 The manager is committed into the repo for convenience, but it is excluded from the public GitHub Pages build.
 

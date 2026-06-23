@@ -123,18 +123,35 @@
                         <input id="post-draft" type="checkbox">
                         Draft
                     </label>
-                    <label class="wide-field">
-                        <span>Content Blocks JSON</span>
-                        <textarea id="post-content" rows="16" spellcheck="false"></textarea>
-                    </label>
-                    <div class="wide-field helper-grid">
-                        <button type="button" data-insert-block="text">Add Text</button>
-                        <button type="button" data-insert-block="quote">Add Quote</button>
-                        <button type="button" data-insert-block="image">Add Image</button>
-                        <button type="button" data-insert-block="link">Add Link</button>
-                        <button type="button" data-insert-block="list">Add List</button>
-                        <button type="button" data-insert-block="gallery">Add Gallery</button>
-                        <button type="button" data-insert-block="code">Add Code</button>
+                    <div class="wide-field scrapbook-composer">
+                        <div class="scrapbook-topbar">
+                            <div>
+                                <p class="eyebrow">scrapbook draft</p>
+                                <h3>Post Chain</h3>
+                                <p>Build the post like blocks on a table. Move things, remove things, add more things.</p>
+                            </div>
+                            <div class="add-block-control">
+                                <label>
+                                    <span>Add Block</span>
+                                    <select id="block-type">
+                                        <option value="text">Text</option>
+                                        <option value="heading">Heading</option>
+                                        <option value="quote">Quote</option>
+                                        <option value="image">Image</option>
+                                        <option value="link">Link</option>
+                                        <option value="list">List</option>
+                                        <option value="gallery">Gallery</option>
+                                        <option value="code">Code</option>
+                                    </select>
+                                </label>
+                                <button type="button" id="add-block" class="primary-action plus-button">+</button>
+                            </div>
+                        </div>
+                        <div id="block-builder" class="block-builder" aria-live="polite"></div>
+                        <details class="json-drawer">
+                            <summary>Advanced: show generated JSON</summary>
+                            <textarea id="post-content" rows="10" spellcheck="false"></textarea>
+                        </details>
                     </div>
                     <div class="wide-field preview-card">
                         <p class="eyebrow">preview</p>
@@ -198,7 +215,7 @@
                     <h3>3. Choose the repo folder</h3>
                     <p>Click `Choose Site Folder` and select the `hotsoursoup.github.io` folder. The manager will load `site.config.json`, `himanshu.json`, and `aryan.json`.</p>
                     <h3>4. Create posts</h3>
-                    <p>Use `Create Post`, choose the author, add title/date/tags/theme, then build content blocks. Local image filenames should match files placed in that author's image folder.</p>
+                    <p>Use `Create Post`, choose the author, add title/date/tags/theme, then build the post with scrapbook blocks. Press `+` to add a block, use `Up`/`Down` to move it, and `X` to remove it.</p>
                     <h3>5. Confirm identity before writes</h3>
                     <p>Saving, deleting, or resequencing an author's posts asks you to type that author's display name exactly, such as `Aryan` or `Himanshu`.</p>
                     <h3>6. Publish</h3>
