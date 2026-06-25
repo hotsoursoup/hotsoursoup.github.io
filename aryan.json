@@ -1,11 +1,63 @@
 [
   {
+    "id": "post-2026-06-25",
+    "title": "Whisper of a Coin",
+    "date": "2026-06-25",
+    "tag": "aryanism",
+    "tags": [
+      "yapping",
+      "preachy",
+      "aryanism",
+      "life hack",
+      "self help"
+    ],
+    "theme": "sunprint",
+    "content": [
+      {
+        "type": "text",
+        "text": "We’ve all been there: standing in front of the wardrobe, unable to choose between two outfits; snoozing the alarm early in the morning, debating whether to go for a run or go back to sleep; or staring at your phone, thumb hovering over 'send' or 'delete'."
+      },
+      {
+        "type": "text",
+        "text": "I have always been a fairly indecisive person. I used to overthink even the smallest choices, trying to find the “perfect” or most efficient path. More often than not, this only made me anxious, and I would end up delaying the decision altogether."
+      },
+      {
+        "type": "image",
+        "alt": "Matrix Blue pill Red pill ",
+        "caption": "Classic dilemma",
+        "src": "1_1.jpg"
+      },
+      {
+        "type": "text",
+        "text": "So I eventually learnt a trick which has helped me in being more decisive. \nHere’s how it works. I take a coin, assign each option a side, and toss it high. Heads, I go for a jog; tails, I go back to sleep. But while the coin is in the air, spinning wildly between two possibilities, my mind always drifts towards one outcome. It’s a subtle but unmistakable tiny pulse of hope or dread, revealing clearly what I truly want."
+      },
+      {
+        "type": "text",
+        "text": "I think this works because the coin toss gives you a small moment of distance from the decision. For a few seconds, it feels like you are not choosing anymore; the coin is. And strangely, that makes your own preference easier to notice.\n\nFor me, the useful part is not the result of the toss, but my reaction to it. Sometimes, while the coin is still in the air, I catch myself hoping for one outcome. Other times, after it lands, I immediately feel relief or disappointment. That tiny reaction often tells me more than all the overthinking I was doing before.\n\nOver time, this has made me realise that my indecision is not always because I do not know what I want. More often, it is because I am scared of choosing it, or because I am trying too hard to justify it logically. The coin does not decide for me. It just helps me hear what I was already feeling."
+      },
+      {
+        "type": "image",
+        "alt": "Describe the image",
+        "caption": "",
+        "src": "1_2.jpg"
+      },
+      {
+        "type": "text",
+        "text": "So, the next time you feel stuck between two choices, try flipping a coin. Not because the coin should decide for you, but because your reaction to it might tell you something.\n\nThere is also another interesting case: sometimes the coin is in the air and you feel nothing. No hope, no dread, no preference. In that case, maybe the decision genuinely does not matter as much as you thought. Maybe both options are fine. And if both options are fine, then letting the coin decide may not be such a bad thing.\n\n"
+      }
+    ]
+  },
+  {
     "id": "first-entry",
     "title": "First Entry",
     "date": "2026-06-22",
     "tag": "note",
-    "tags": ["note", "clean-slate"],
+    "tags": [
+      "note",
+      "clean-slate"
+    ],
     "theme": "matcha",
+    "draft": true,
     "content": [
       {
         "type": "text",
@@ -18,7 +70,11 @@
     "title": "Template: gallery and code post",
     "date": "2026-06-20",
     "tag": "template",
-    "tags": ["template", "gallery", "code"],
+    "tags": [
+      "template",
+      "gallery",
+      "code"
+    ],
     "theme": "porcelain",
     "draft": true,
     "content": [
