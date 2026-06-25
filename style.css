@@ -633,8 +633,10 @@ figure {
 img {
     display: block;
     width: 100%;
+    height: auto;
     max-height: 520px;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
     border: 1px solid var(--line);
     border-radius: 18px;
     background: var(--glass);
