@@ -1,6 +1,7 @@
 const state = {
     config: null,
     posts: [],
+    likedPosts: new Set(),
     filters: {
         author: "all",
         tag: "all",
@@ -23,6 +24,8 @@ const visualThemes = [
     { value: "mono", label: "Mono Glass" },
     { value: "sunset", label: "Solar Pop" }
 ];
+
+const LIKE_STORAGE_KEY = "hotSourSoupLikedPosts";
 
 const els = {
     posts: document.querySelector("#posts"),
@@ -49,6 +52,7 @@ async function loadJson(path) {
 
 async function init() {
     try {
+        state.likedPosts = loadLikedPosts();
         state.config = await loadJson("site.config.json");
         const authorEntries = Object.entries(state.config.authors);
         const postGroups = await Promise.all(
@@ -81,16 +85,28 @@ async function init() {
 
 function normalizePost(post, authorId, author) {
     const tags = Array.from(new Set([post.tag, ...(post.tags || [])].filter(Boolean)));
+    const fallbackId = `${post.date || "undated"}-${post.title || "untitled"}`;
+    const postId = post.id || fallbackId;
     return {
         ...post,
         authorId,
         authorName: author.displayName,
         authorHandle: author.handle,
         imageFolder: author.imageFolder,
+        likeKey: `${authorId}:${postId}`,
+        likes: normalizeLikeCount(post.likes),
         tags,
         theme: post.theme || "porcelain",
         content: post.content || []
     };
+}
+
+function normalizeLikeCount(value) {
+    const count = Number(value);
+    if (!Number.isFinite(count) || count < 0) {
+        return 0;
+    }
+    return Math.floor(count);
 }
 
 function buildFilters() {
@@ -250,8 +266,10 @@ function searchablePostText(post) {
     const contentText = post.content
         .map((block) => [
             block.text,
+            block.alt,
             block.caption,
             block.url,
+            block.src,
             block.code,
             ...(block.items || []),
             ...(block.images || []).flatMap((image) => [image.alt, image.caption, image.url, image.src])
@@ -299,8 +317,88 @@ function renderPost(post) {
     body.className = "post-body";
     post.content.forEach((block) => body.append(renderBlock(block, post)));
 
-    article.append(header, tagRow, body);
+    article.append(header, tagRow, body, renderPostActions(post));
     return article;
+}
+
+function renderPostActions(post) {
+    const actions = document.createElement("footer");
+    actions.className = "post-actions";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "like-button";
+
+    const icon = document.createElement("span");
+    icon.className = "like-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.innerHTML = "&hearts;";
+
+    const count = document.createElement("span");
+    count.dataset.likeCount = "";
+
+    button.append(icon, count);
+    button.addEventListener("click", () => togglePostLike(post, button));
+    updateLikeButton(button, post);
+
+    actions.append(button);
+    return actions;
+}
+
+function togglePostLike(post, button) {
+    if (hasLikedPost(post)) {
+        state.likedPosts.delete(post.likeKey);
+    } else {
+        state.likedPosts.add(post.likeKey);
+    }
+
+    saveLikedPosts();
+    updateLikeButton(button, post);
+}
+
+function updateLikeButton(button, post) {
+    const liked = hasLikedPost(post);
+    const count = likeCountFor(post);
+    const label = `${count} ${count === 1 ? "like" : "likes"}`;
+
+    button.classList.toggle("liked", liked);
+    button.setAttribute("aria-pressed", String(liked));
+    button.setAttribute("aria-label", liked ? `Remove like from ${post.title}` : `Like ${post.title}`);
+    button.querySelector("[data-like-count]").textContent = label;
+}
+
+function likeCountFor(post) {
+    return post.likes + (hasLikedPost(post) ? 1 : 0);
+}
+
+function hasLikedPost(post) {
+    return state.likedPosts.has(post.likeKey);
+}
+
+function loadLikedPosts() {
+    try {
+        const stored = localStorage.getItem(LIKE_STORAGE_KEY);
+        if (!stored) {
+            return new Set();
+        }
+
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+            return new Set(parsed.filter((item) => typeof item === "string"));
+        }
+    } catch {
+        // If storage is blocked or corrupted, likes still work for this page view.
+    }
+
+    return new Set();
+}
+
+function saveLikedPosts() {
+    try {
+        localStorage.setItem(LIKE_STORAGE_KEY, JSON.stringify([...state.likedPosts]));
+    } catch {
+        // Some privacy modes block localStorage writes. The in-memory state still updates.
+    }
 }
 
 function renderBlock(block, post) {
@@ -315,6 +413,8 @@ function renderBlock(block, post) {
             return renderLink(block);
         case "image":
             return renderFigure(block, post);
+        case "imageText":
+            return renderImageText(block, post);
         case "gallery":
             return renderGallery(block, post);
         case "list":
@@ -353,11 +453,30 @@ function renderFigure(block, post) {
     return figure;
 }
 
+function renderImageText(block, post) {
+    const wrapper = document.createElement("div");
+    wrapper.className = `media-text ${block.position === "right" ? "media-text-right" : "media-text-left"}`;
+
+    const copy = document.createElement("div");
+    copy.className = "media-text-copy";
+    textParagraphs(block.text).forEach((paragraph) => copy.append(element("p", "post-text", paragraph)));
+
+    wrapper.append(renderFigure(block, post), copy);
+    return wrapper;
+}
+
 function renderGallery(block, post) {
     const gallery = document.createElement("div");
     gallery.className = "gallery";
     (block.images || []).forEach((image) => gallery.append(renderFigure(image, post)));
     return gallery;
+}
+
+function textParagraphs(text) {
+    return String(text || "")
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
 }
 
 function renderList(block) {

@@ -32,18 +32,11 @@
         "text": "So I eventually learnt a trick which has helped me in being more decisive. \nHere’s how it works. I take a coin, assign each option a side, and toss it high. Heads, I go for a jog; tails, I go back to sleep. But while the coin is in the air, spinning wildly between two possibilities, my mind always drifts towards one outcome. It’s a subtle but unmistakable tiny pulse of hope or dread, revealing clearly what I truly want."
       },
       {
-        "type": "text",
-        "text": "I think this works because the coin toss gives you a small moment of distance from the decision. For a few seconds, it feels like you are not choosing anymore; the coin is. And strangely, that makes your own preference easier to notice.\n\nFor me, the useful part is not the result of the toss, but my reaction to it. Sometimes, while the coin is still in the air, I catch myself hoping for one outcome. Other times, after it lands, I immediately feel relief or disappointment. That tiny reaction often tells me more than all the overthinking I was doing before.\n\nOver time, this has made me realise that my indecision is not always because I do not know what I want. More often, it is because I am scared of choosing it, or because I am trying too hard to justify it logically. The coin does not decide for me. It just helps me hear what I was already feeling."
-      },
-      {
-        "type": "image",
+        "type": "imageText",
+        "src": "1_2.jpg",
         "alt": "Describe the image",
-        "caption": "",
-        "src": "1_2.jpg"
-      },
-      {
-        "type": "text",
-        "text": "So, the next time you feel stuck between two choices, try flipping a coin. Not because the coin should decide for you, but because your reaction to it might tell you something.\n\nThere is also another interesting case: sometimes the coin is in the air and you feel nothing. No hope, no dread, no preference. In that case, maybe the decision genuinely does not matter as much as you thought. Maybe both options are fine. And if both options are fine, then letting the coin decide may not be such a bad thing.\n\n"
+        "position": "right",
+        "text": "I think this works because the coin toss gives you a small moment of distance from the decision. For a few seconds, it feels like you are not choosing anymore; the coin is. And strangely, that makes your own preference easier to notice.\n\nFor me, the useful part is not the result of the toss, but my reaction to it. Sometimes, while the coin is still in the air, I catch myself hoping for one outcome. Other times, after it lands, I immediately feel relief or disappointment. That tiny reaction often tells me more than all the overthinking I was doing before.\n\nOver time, this has made me realise that my indecision is not always because I do not know what I want. More often, it is because I am scared of choosing it, or because I am trying too hard to justify it logically. The coin does not decide for me. It just helps me hear what I was already feeling.\n\nSo, the next time you feel stuck between two choices, try flipping a coin. Not because the coin should decide for you, but because your reaction to it might tell you something.\n\nThere is also another interesting case: sometimes the coin is in the air and you feel nothing. No hope, no dread, no preference. In that case, maybe the decision genuinely does not matter as much as you thought. Maybe both options are fine. And if both options are fine, then letting the coin decide may not be such a bad thing.\n\n"
       }
     ]
   },

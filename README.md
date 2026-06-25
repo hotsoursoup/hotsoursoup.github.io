@@ -163,6 +163,21 @@ Remote image:
 }
 ```
 
+Image beside text:
+
+```json
+{
+  "type": "imageText",
+  "src": "portrait.jpg",
+  "alt": "Describe the image",
+  "caption": "Optional caption.",
+  "position": "left",
+  "text": "Write the paragraph that should sit beside the image."
+}
+```
+
+Use `"position": "right"` when the image should sit on the right. Phones stack this block automatically.
+
 Gallery:
 
 ```json

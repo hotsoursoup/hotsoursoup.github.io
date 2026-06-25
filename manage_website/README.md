@@ -145,3 +145,18 @@ Put `photo.jpg` in the correct folder:
 - `aryan_images/`
 
 Remote image URLs can use `url` instead of `src`.
+
+For narrow images that work better beside copy, choose `Image + Text` in the manager. The block stores this shape:
+
+```json
+{
+  "type": "imageText",
+  "src": "portrait.jpg",
+  "alt": "Describe the image",
+  "caption": "Optional caption",
+  "position": "left",
+  "text": "Write the paragraph that should sit beside the image."
+}
+```
+
+Use `"position": "right"` to put the image on the right. On phone screens, the image and text stack automatically.

@@ -58,6 +58,14 @@ const blockTemplates = {
     heading: { type: "heading", text: "A Small Section Heading" },
     quote: { type: "quote", text: "A highlighted thought." },
     image: { type: "image", src: "image-name.jpg", alt: "Describe the image", caption: "Optional caption." },
+    imageText: {
+        type: "imageText",
+        src: "image-name.jpg",
+        alt: "Describe the image",
+        caption: "Optional caption.",
+        position: "left",
+        text: "Write the text that should sit beside this image."
+    },
     link: { type: "link", text: "Open this", url: "https://example.com" },
     list: { type: "list", items: ["first thing", "second thing"] },
     gallery: {
@@ -96,6 +104,7 @@ function bindEvents() {
     els.saveSiteConfig.addEventListener("click", saveSiteConfig);
     els.addBlock.addEventListener("click", () => insertBlock(els.blockType.value));
     els.blockBuilder.addEventListener("input", updateBlockFromInput);
+    els.blockBuilder.addEventListener("change", updateBlockFromInput);
     els.blockBuilder.addEventListener("click", handleBlockBuilderClick);
 }
 
@@ -480,6 +489,7 @@ function previewBlock(block) {
     if (block.type === "quote") return `<blockquote>${escapeHtml(block.text || "")}</blockquote>`;
     if (block.type === "link") return `<p>Link: ${escapeHtml(block.text || block.url || "")}</p>`;
     if (block.type === "image") return `<p>Image: ${escapeHtml(block.src || block.url || "")}</p>`;
+    if (block.type === "imageText") return `<p>Image + Text: ${escapeHtml(block.src || block.url || "")} / ${escapeHtml(block.position || "left")}</p>`;
     if (block.type === "gallery") return `<p>Gallery: ${(block.images || []).length} images</p>`;
     if (block.type === "list") return `<p>List: ${(block.items || []).join(", ")}</p>`;
     if (block.type === "code") return `<pre>${escapeHtml(block.code || "")}</pre>`;
@@ -545,6 +555,20 @@ function blockFields(block, index) {
             <p class="block-hint">Use either local file name or remote URL. Local files go in that author's image folder.</p>
         `;
     }
+    if (block.type === "imageText") {
+        return `
+            ${fieldSelect(index, "position", "Image Side", block.position || "left", [
+                { value: "left", label: "Left" },
+                { value: "right", label: "Right" }
+            ])}
+            ${fieldInput(index, "src", "Local File Name", block.src || "", "photo.jpg")}
+            ${fieldInput(index, "url", "Remote Image URL", block.url || "", "https://example.com/photo.jpg")}
+            ${fieldInput(index, "alt", "Alt Text", block.alt || "", "Describe the image")}
+            ${fieldInput(index, "caption", "Caption", block.caption || "", "Optional caption")}
+            ${fieldTextarea(index, "text", "Text Beside Image", block.text || "", "Write the paragraph here.")}
+            <p class="block-hint">Use this for narrow images that look better beside text on laptop screens. Phones will stack the image and text.</p>
+        `;
+    }
     if (block.type === "gallery") {
         const lines = (block.images || []).map((image) => image.src || image.url || "").join("\n");
         return `
@@ -570,6 +594,14 @@ function fieldInput(index, key, label, value, placeholder) {
 
 function fieldTextarea(index, key, label, value, placeholder) {
     return `<label class="block-field wide-block-field"><span>${label}</span><textarea data-block-index="${index}" data-block-key="${key}" rows="4" placeholder="${escapeAttribute(placeholder)}">${escapeHtml(value)}</textarea></label>`;
+}
+
+function fieldSelect(index, key, label, value, options) {
+    const choices = options.map((option) => {
+        const selected = option.value === value ? " selected" : "";
+        return `<option value="${escapeAttribute(option.value)}"${selected}>${escapeHtml(option.label)}</option>`;
+    }).join("");
+    return `<label class="block-field"><span>${label}</span><select data-block-index="${index}" data-block-key="${key}">${choices}</select></label>`;
 }
 
 function updateBlockFromInput(event) {
@@ -662,6 +694,7 @@ function blockLabel(type) {
         heading: "Heading",
         quote: "Quote",
         image: "Image",
+        imageText: "Image + Text",
         link: "Link",
         list: "List",
         gallery: "Gallery",
