@@ -13,6 +13,7 @@ const els = {
     statusDot: document.querySelector("#status-dot"),
     connectionStatus: document.querySelector("#connection-status"),
     statusMessage: document.querySelector("#status-message"),
+    managerTheme: document.querySelector("#manager-theme"),
     reqBrowser: document.querySelector("#req-browser"),
     reqLocalhost: document.querySelector("#req-localhost"),
     reqFolder: document.querySelector("#req-folder"),
@@ -54,6 +55,15 @@ const els = {
     postCardTemplate: document.querySelector("#post-card-template")
 };
 
+const visualThemes = [
+    { value: "aura", label: "Light Aura" },
+    { value: "neon", label: "Dark Neon" },
+    { value: "matrix", label: "Matrix" },
+    { value: "plasma", label: "Plasma" },
+    { value: "mono", label: "Mono Glass" },
+    { value: "sunset", label: "Solar Pop" }
+];
+
 const blockTemplates = {
     text: { type: "text", text: "Write a paragraph here." },
     heading: { type: "heading", text: "A Small Section Heading" },
@@ -79,6 +89,7 @@ const blockTemplates = {
     code: { type: "code", language: "txt", code: "line one\\nline two" }
 };
 
+setupManagerTheme();
 bindEvents();
 runPreflight();
 
@@ -103,10 +114,35 @@ function bindEvents() {
     els.addTheme.addEventListener("click", addThemeCard);
     els.saveThemes.addEventListener("click", saveThemes);
     els.saveSiteConfig.addEventListener("click", saveSiteConfig);
+    els.managerTheme.addEventListener("change", () => {
+        applyManagerTheme(els.managerTheme.value);
+        localStorage.setItem("hotSourSoupManagerTheme", els.managerTheme.value);
+    });
     els.addBlock.addEventListener("click", () => insertBlock(els.blockType.value));
     els.blockBuilder.addEventListener("input", updateBlockFromInput);
     els.blockBuilder.addEventListener("change", updateBlockFromInput);
     els.blockBuilder.addEventListener("click", handleBlockBuilderClick);
+}
+
+function setupManagerTheme() {
+    const savedTheme = localStorage.getItem("hotSourSoupManagerTheme") || localStorage.getItem("hotSourSoupTheme");
+    const validThemes = new Set(visualThemes.map((theme) => theme.value));
+    const selectedTheme = validThemes.has(savedTheme) ? savedTheme : "aura";
+
+    els.managerTheme.innerHTML = "";
+    visualThemes.forEach((theme) => {
+        const option = document.createElement("option");
+        option.value = theme.value;
+        option.textContent = theme.label;
+        option.selected = theme.value === selectedTheme;
+        els.managerTheme.append(option);
+    });
+    applyManagerTheme(selectedTheme);
+}
+
+function applyManagerTheme(theme) {
+    const validThemes = new Set(visualThemes.map((item) => item.value));
+    document.documentElement.dataset.visualTheme = validThemes.has(theme) ? theme : "aura";
 }
 
 async function connectFolder() {
