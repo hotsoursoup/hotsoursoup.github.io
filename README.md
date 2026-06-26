@@ -266,8 +266,22 @@ Then open `http://localhost:8000`.
 
 The local manager lives at `http://localhost:8000/manage_website/`.
 
-## Tiny Fun Feature
+## Tiny Fun Features
 
-The `perlin music` button uses the browser's built-in Web Audio API to play quiet generated ambient music. It uses a small Perlin-style noise function to steer note choices, pitch drift, filter movement, and delay timing.
+The beat deck uses the browser's built-in Web Audio API to play tiny generated drum patterns. Pick a mode from the Beat menu, then press `play beat`.
 
-The `jungle beat` button adds a generated drum mix with kick, snare, ghost snare, hats, tom hits, and a fast swung pattern. There are no audio files and nothing external to host.
+Current modes:
+
+- Jungle Break
+- Lo-Fi Pulse
+- Neon House
+- Matrix DnB
+- Soft Glitch
+
+There are no audio files, no radio streams, and nothing external to host. This keeps the site portable on GitHub Pages and avoids broken cross-origin streams.
+
+The WPI Art menu changes the animated profile mark in the top bar. It is CSS-only, so it stays light. To replace the `HSS` mark with a real image later, edit the `.logo-mark` element in `index.html` and `aryan.html`, or replace the text with an `<img>` that points to a file in the repository.
+
+## Likes
+
+Likes are local to the browser. The site stores the posts you liked in `localStorage`, then adds `1` to the post's base `likes` number from the JSON. Because GitHub Pages has no backend, these likes are not shared across devices or visitors. For a truly shared like count, the project would need an external service or backend.

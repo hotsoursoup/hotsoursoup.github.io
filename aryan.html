@@ -28,13 +28,13 @@
                     <h1 id="page-title">Aryan's channel: clean sparks, bright fragments, and futuristic little discoveries.</h1>
                 </div>
                 <div class="sound-deck" aria-label="Audio controls">
-                    <button class="radio-button" type="button" data-music-toggle aria-pressed="false">
-                        <span class="radio-light" aria-hidden="true"></span>
-                        perlin music
-                    </button>
+                    <label class="deck-select">
+                        <span>Beat</span>
+                        <select id="beat-mode"></select>
+                    </label>
                     <button class="radio-button beat-button" type="button" data-beat-toggle aria-pressed="false">
                         <span class="radio-light" aria-hidden="true"></span>
-                        jungle beat
+                        play beat
                     </button>
                     <p class="audio-status" data-audio-status>audio idle</p>
                 </div>
@@ -56,6 +56,10 @@
                 <label>
                     <span>Visual Style</span>
                     <select id="visual-theme"></select>
+                </label>
+                <label>
+                    <span>WPI Art</span>
+                    <select id="wpi-style"></select>
                 </label>
                 <label class="search-box">
                     <span>Search</span>
@@ -79,7 +83,7 @@
         </main>
 
         <footer class="site-footer">
-            <p>Static JSON posts, glass UI, and a tiny browser-native generative music engine.</p>
+            <p>Static JSON posts, glass UI, and tiny browser-native generated beats.</p>
         </footer>
     </div>
 

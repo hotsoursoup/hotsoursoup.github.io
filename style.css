@@ -242,6 +242,8 @@ select {
 }
 
 .logo-mark {
+    position: relative;
+    isolation: isolate;
     display: grid;
     place-items: center;
     width: 38px;
@@ -256,6 +258,64 @@ select {
         linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent),
         linear-gradient(135deg, var(--accent-a), var(--accent-b) 55%, var(--accent-c));
     box-shadow: 0 0 24px color-mix(in srgb, var(--accent-a) 34%, transparent), inset 0 1px 10px rgba(255, 255, 255, 0.50);
+}
+
+.logo-mark::before,
+.logo-mark::after {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.logo-mark::before {
+    inset: -6px;
+    z-index: -2;
+    background: conic-gradient(from 0deg, transparent 0 14%, var(--accent-a), transparent 30% 46%, var(--accent-c), transparent 66% 82%, var(--accent-d), transparent);
+    filter: blur(0.2px);
+    opacity: 0.86;
+    animation: wpi-spin 7s linear infinite;
+}
+
+.logo-mark::after {
+    inset: 3px;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.85), transparent 24%),
+        conic-gradient(from 80deg, color-mix(in srgb, var(--accent-a) 80%, white), var(--accent-b), var(--accent-c), color-mix(in srgb, var(--accent-d) 72%, white), var(--accent-a));
+    mix-blend-mode: screen;
+    opacity: 0.25;
+    animation: wpi-pulse 5s ease-in-out infinite;
+}
+
+:root[data-wpi-style="kaleidoscope"] .logo-mark::before {
+    inset: -4px;
+    background: repeating-conic-gradient(from 0deg, var(--accent-a) 0 10deg, var(--accent-b) 10deg 20deg, var(--accent-c) 20deg 30deg, transparent 30deg 44deg);
+    animation-duration: 12s;
+}
+
+:root[data-wpi-style="kaleidoscope"] .logo-mark::after {
+    opacity: 0.38;
+    background: repeating-conic-gradient(from 45deg, rgba(255, 255, 255, 0.9) 0 8deg, transparent 8deg 18deg);
+}
+
+:root[data-wpi-style="halo"] .logo-mark::before {
+    inset: -8px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-a) 72%, transparent), transparent 68%);
+    filter: blur(5px);
+    animation: wpi-breathe 4.8s ease-in-out infinite;
+}
+
+:root[data-wpi-style="prism"] .logo-mark::before {
+    inset: -6px;
+    border-radius: 36% 64% 54% 46% / 55% 35% 65% 45%;
+    background: conic-gradient(from 130deg, var(--accent-a), var(--accent-b), var(--accent-c), var(--accent-d), var(--accent-a));
+    animation-duration: 5.5s;
+}
+
+:root[data-wpi-style="minimal"] .logo-mark::before,
+:root[data-wpi-style="minimal"] .logo-mark::after {
+    display: none;
 }
 
 .logo-text {
@@ -379,7 +439,30 @@ h1 {
     justify-self: end;
     display: grid;
     gap: 8px;
-    width: min(100%, 154px);
+    width: min(100%, 176px);
+}
+
+.deck-select {
+    display: grid;
+    gap: 4px;
+    color: var(--muted);
+    font-size: 0.64rem;
+    font-weight: 850;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+}
+
+.deck-select select {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--glass-strong) 80%, transparent);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 20px rgba(25, 35, 56, 0.08);
+    padding: 8px 12px;
+    outline: none;
+    backdrop-filter: blur(16px);
 }
 
 .radio-button {
@@ -409,7 +492,7 @@ h1 {
 }
 
 .beat-button {
-    background: linear-gradient(135deg, #182014, #285c35 52%, #b5ff4d);
+    background: linear-gradient(135deg, #12192a, #1d6472 52%, #a7ff6b);
 }
 
 .audio-status {
@@ -422,7 +505,7 @@ h1 {
 
 .controls {
     display: grid;
-    grid-template-columns: repeat(5, minmax(132px, 1fr));
+    grid-template-columns: repeat(6, minmax(122px, 1fr));
     gap: 10px;
     margin-top: 12px;
     padding: 10px;
@@ -685,21 +768,63 @@ figure {
     margin: 14px 0;
 }
 
+.post-body::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.image-block {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--glass-strong) 82%, transparent), color-mix(in srgb, var(--glass) 72%, transparent));
+    box-shadow: 0 12px 32px rgba(20, 31, 52, 0.12);
+}
+
+.image-block.is-portrait,
+.image-block.image-align-left,
+.image-block.image-align-right {
+    width: min(42%, 360px);
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+
+.image-block.is-portrait,
+.image-block.image-align-right {
+    float: right;
+    margin-left: 18px;
+}
+
+.image-block.image-align-left {
+    float: left;
+    margin-right: 18px;
+}
+
 img {
     display: block;
     width: 100%;
     height: auto;
     max-height: 520px;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    background: var(--glass);
-    box-shadow: 0 12px 32px rgba(20, 31, 52, 0.12);
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    box-shadow: none;
+}
+
+.image-block.is-portrait img,
+.image-block.image-align-left img,
+.image-block.image-align-right img {
+    max-height: 430px;
+    object-fit: cover;
 }
 
 figcaption {
-    margin-top: 7px;
+    margin: 0;
+    padding: 8px 10px;
     color: var(--muted);
     font-size: 0.84rem;
 }
@@ -730,7 +855,7 @@ figcaption {
 
 .gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
     gap: 10px;
 }
 
@@ -740,6 +865,26 @@ figcaption {
 
 .gallery img {
     aspect-ratio: 1;
+}
+
+@keyframes wpi-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes wpi-pulse {
+    50% {
+        opacity: 0.46;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes wpi-breathe {
+    50% {
+        opacity: 0.55;
+        transform: scale(1.18);
+    }
 }
 
 pre {
@@ -850,6 +995,14 @@ pre {
     .media-text,
     .media-text-right {
         grid-template-columns: 1fr;
+    }
+
+    .image-block.is-portrait,
+    .image-block.image-align-left,
+    .image-block.image-align-right {
+        float: none;
+        width: 100%;
+        margin: 14px 0;
     }
 
     .media-text-right figure {

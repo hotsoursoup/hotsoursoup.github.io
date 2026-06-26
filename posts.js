@@ -9,11 +9,12 @@ const state = {
         search: ""
     },
     audioContext: null,
-    music: null,
-    musicOn: false,
+    audioMessage: "",
     beat: null,
     beatOn: false,
-    visualTheme: "aura"
+    beatMode: "jungle",
+    visualTheme: "aura",
+    wpiStyle: "portal"
 };
 
 const visualThemes = [
@@ -25,6 +26,22 @@ const visualThemes = [
     { value: "sunset", label: "Solar Pop" }
 ];
 
+const wpiStyles = [
+    { value: "portal", label: "Portal Ring" },
+    { value: "kaleidoscope", label: "Kaleidoscope" },
+    { value: "halo", label: "Soft Halo" },
+    { value: "prism", label: "Prism Spin" },
+    { value: "minimal", label: "Minimal Orb" }
+];
+
+const beatModes = [
+    { value: "jungle", label: "Jungle Break", tempo: 165, gain: 0.16 },
+    { value: "lofi", label: "Lo-Fi Pulse", tempo: 84, gain: 0.13 },
+    { value: "neon", label: "Neon House", tempo: 124, gain: 0.14 },
+    { value: "matrix", label: "Matrix DnB", tempo: 172, gain: 0.15 },
+    { value: "glitch", label: "Soft Glitch", tempo: 96, gain: 0.11 }
+];
+
 const LIKE_STORAGE_KEY = "hotSourSoupLikedPosts";
 
 const els = {
@@ -34,10 +51,11 @@ const els = {
     tagFilter: document.querySelector("#tag-filter"),
     themeFilter: document.querySelector("#theme-filter"),
     visualTheme: document.querySelector("#visual-theme"),
+    wpiStyle: document.querySelector("#wpi-style"),
     searchFilter: document.querySelector("#search-filter"),
     clearFilters: document.querySelector("#clear-filters"),
     emptyTemplate: document.querySelector("#empty-state-template"),
-    musicButton: document.querySelector("[data-music-toggle]"),
+    beatMode: document.querySelector("#beat-mode"),
     beatButton: document.querySelector("[data-beat-toggle]"),
     audioStatus: document.querySelector("[data-audio-status]")
 };
@@ -67,8 +85,11 @@ async function init() {
         state.posts = postGroups.flat().sort((a, b) => b.date.localeCompare(a.date));
         state.filters.author = getInitialAuthor(authorEntries);
         state.visualTheme = getInitialVisualTheme();
+        state.wpiStyle = getInitialWpiStyle();
+        state.beatMode = getInitialBeatMode();
 
         applyVisualTheme(state.visualTheme);
+        applyWpiStyle(state.wpiStyle);
         buildFilters();
         bindEvents();
         setActiveNav();
@@ -128,6 +149,8 @@ function buildFilters() {
     fillSelect(els.tagFilter, [{ value: "all", label: "All tags" }, ...tags.map((tag) => ({ value: tag, label: tag }))]);
     fillSelect(els.themeFilter, [{ value: "all", label: "All themes" }, ...themes]);
     fillSelect(els.visualTheme, visualThemes, state.visualTheme);
+    fillSelect(els.wpiStyle, wpiStyles, state.wpiStyle);
+    fillSelect(els.beatMode, beatModes, state.beatMode);
 }
 
 function fillSelect(select, options, selected = "all") {
@@ -160,6 +183,26 @@ function bindEvents() {
         applyVisualTheme(state.visualTheme);
         localStorage.setItem("hotSourSoupTheme", state.visualTheme);
     });
+    els.wpiStyle.addEventListener("change", () => {
+        state.wpiStyle = els.wpiStyle.value;
+        applyWpiStyle(state.wpiStyle);
+        localStorage.setItem("hotSourSoupWpiStyle", state.wpiStyle);
+    });
+    els.beatMode.addEventListener("change", () => {
+        state.beatMode = els.beatMode.value;
+        localStorage.setItem("hotSourSoupBeatMode", state.beatMode);
+        if (state.beatOn) {
+            stopBeat();
+            startBeat().then((started) => {
+                state.beatOn = started;
+                els.beatButton.setAttribute("aria-pressed", String(started));
+                els.beatButton.classList.toggle("playing", started);
+                updateAudioStatus(started ? null : "audio blocked");
+            });
+        } else {
+            updateAudioStatus();
+        }
+    });
     els.searchFilter.addEventListener("input", () => {
         state.filters.search = els.searchFilter.value.trim().toLowerCase();
         render();
@@ -187,7 +230,6 @@ function bindEvents() {
         setActiveNav();
         render();
     });
-    els.musicButton.addEventListener("click", toggleMusic);
     els.beatButton.addEventListener("click", toggleBeat);
 }
 
@@ -207,10 +249,28 @@ function getInitialVisualTheme() {
     return "aura";
 }
 
+function getInitialWpiStyle() {
+    const savedStyle = localStorage.getItem("hotSourSoupWpiStyle");
+    const validStyles = new Set(wpiStyles.map((style) => style.value));
+    return validStyles.has(savedStyle) ? savedStyle : "portal";
+}
+
+function getInitialBeatMode() {
+    const savedMode = localStorage.getItem("hotSourSoupBeatMode");
+    const validModes = new Set(beatModes.map((mode) => mode.value));
+    return validModes.has(savedMode) ? savedMode : "jungle";
+}
+
 function applyVisualTheme(theme) {
     const validThemes = new Set(visualThemes.map((item) => item.value));
     const nextTheme = validThemes.has(theme) ? theme : "aura";
     document.documentElement.dataset.visualTheme = nextTheme;
+}
+
+function applyWpiStyle(style) {
+    const validStyles = new Set(wpiStyles.map((item) => item.value));
+    const nextStyle = validStyles.has(style) ? style : "portal";
+    document.documentElement.dataset.wpiStyle = nextStyle;
 }
 
 function getInitialAuthor(authorEntries) {
@@ -439,10 +499,16 @@ function renderLink(block) {
 
 function renderFigure(block, post) {
     const figure = document.createElement("figure");
+    figure.className = `image-block ${block.align ? `image-align-${block.align}` : ""}`.trim();
     const img = document.createElement("img");
     img.src = imageSource(block, post);
     img.alt = block.alt || "";
     img.loading = "lazy";
+    img.addEventListener("load", () => {
+        const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
+        figure.classList.toggle("is-portrait", ratio < 0.86);
+        figure.classList.toggle("is-landscape", ratio >= 0.86);
+    });
     figure.append(img);
 
     if (block.caption) {
@@ -534,23 +600,6 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-async function toggleMusic() {
-    if (state.musicOn) {
-        state.musicOn = false;
-        els.musicButton.setAttribute("aria-pressed", "false");
-        els.musicButton.classList.remove("playing");
-        stopMusic();
-        updateAudioStatus();
-        return;
-    }
-
-    const started = await startMusic();
-    state.musicOn = started;
-    els.musicButton.setAttribute("aria-pressed", String(started));
-    els.musicButton.classList.toggle("playing", started);
-    updateAudioStatus(started ? null : "audio blocked");
-}
-
 function updateAudioStatus(message) {
     if (!els.audioStatus) {
         return;
@@ -560,12 +609,8 @@ function updateAudioStatus(message) {
         return;
     }
 
-    if (state.musicOn && state.beatOn) {
-        els.audioStatus.textContent = "perlin + jungle online";
-    } else if (state.musicOn) {
-        els.audioStatus.textContent = "perlin music online";
-    } else if (state.beatOn) {
-        els.audioStatus.textContent = "jungle beat online";
+    if (state.beatOn) {
+        els.audioStatus.textContent = `${currentBeatMode().label.toLowerCase()} online`;
     } else {
         els.audioStatus.textContent = "audio idle";
     }
@@ -574,7 +619,8 @@ function updateAudioStatus(message) {
 async function getAudioContext() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) {
-        updateAudioStatus("audio not supported");
+        state.audioMessage = "audio not supported in this browser";
+        updateAudioStatus(state.audioMessage);
         return null;
     }
 
@@ -589,148 +635,6 @@ async function getAudioContext() {
     return state.audioContext;
 }
 
-async function startMusic() {
-    const context = await getAudioContext();
-    if (!context) {
-        return false;
-    }
-
-    const master = context.createGain();
-    const filter = context.createBiquadFilter();
-    const delay = context.createDelay(1.6);
-    const feedback = context.createGain();
-    const wet = context.createGain();
-    const voices = createMusicVoices(context);
-    const seed = Math.random() * 1000;
-    let rafId = 0;
-    let stepTimer = 0;
-    let step = 0;
-
-    master.gain.value = 0.0001;
-    filter.type = "lowpass";
-    filter.frequency.value = 980;
-    filter.Q.value = 0.8;
-    delay.delayTime.value = 0.34;
-    feedback.gain.value = 0.22;
-    wet.gain.value = 0.26;
-
-    voices.forEach((voice) => {
-        voice.gain.gain.value = 0;
-        voice.oscillator.connect(voice.gain);
-        voice.gain.connect(filter);
-        voice.oscillator.start();
-    });
-    filter.connect(master);
-    filter.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(wet);
-    wet.connect(master);
-    master.connect(context.destination);
-    master.gain.exponentialRampToValueAtTime(0.085, context.currentTime + 0.8);
-    playMusicPing(context, master, context.currentTime + 0.02);
-
-    const tick = () => {
-        if (!state.musicOn) {
-            return;
-        }
-
-        const now = context.currentTime;
-        const movement = (perlin1D(now * 0.035 + seed) + 1) / 2;
-        filter.frequency.setTargetAtTime(520 + movement * 1650, now, 0.45);
-        delay.delayTime.setTargetAtTime(0.22 + movement * 0.26, now, 0.65);
-
-        if (now >= stepTimer) {
-            playPerlinStep({ context, voices, seed, step });
-            step += 1;
-            stepTimer = now + 0.42 + ((perlin1D(seed + step * 0.19) + 1) / 2) * 0.42;
-        }
-
-        rafId = requestAnimationFrame(tick);
-    };
-
-    tick();
-    state.music = { context, voices, master, rafId, filter, delay, feedback, wet };
-    return true;
-}
-
-function playMusicPing(context, destination, time) {
-    const osc = context.createOscillator();
-    const gain = context.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(440, time);
-    osc.frequency.exponentialRampToValueAtTime(660, time + 0.18);
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(0.09, time + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.32);
-    osc.connect(gain);
-    gain.connect(destination);
-    osc.start(time);
-    osc.stop(time + 0.34);
-}
-
-function createMusicVoices(context) {
-    const voiceSettings = [
-        { type: "sine", level: 0.036, octave: 1 },
-        { type: "triangle", level: 0.022, octave: 2 },
-        { type: "sine", level: 0.017, octave: 0.5 }
-    ];
-
-    return voiceSettings.map((setting) => ({
-        ...setting,
-        oscillator: context.createOscillator(),
-        gain: context.createGain()
-    })).map((voice) => {
-        voice.oscillator.type = voice.type;
-        return voice;
-    });
-}
-
-function playPerlinStep({ context, voices, seed, step }) {
-    const scale = [0, 2, 4, 7, 9, 11, 14, 16];
-    const root = 146.83;
-    const shape = (perlin1D(seed + step * 0.31) + 1) / 2;
-    const drift = (perlin1D(seed * 0.7 + step * 0.13) + 1) / 2;
-    const degree = Math.min(scale.length - 1, Math.floor(shape * scale.length));
-    const baseFrequency = root * Math.pow(2, scale[degree] / 12);
-    const now = context.currentTime;
-
-    voices.forEach((voice, index) => {
-        const offset = perlin1D(seed + step * 0.17 + index * 12.7) * 5.5;
-        const frequency = baseFrequency * voice.octave * Math.pow(2, offset / 1200);
-        const attack = 0.03 + index * 0.025;
-        const release = 0.55 + drift * 1.15 + index * 0.18;
-        const peak = voice.level * (0.5 + shape * 0.9);
-
-        voice.oscillator.frequency.setTargetAtTime(frequency, now, 0.09 + index * 0.04);
-        voice.gain.gain.cancelScheduledValues(now);
-        voice.gain.gain.setTargetAtTime(peak, now, attack);
-        voice.gain.gain.setTargetAtTime(0.0001, now + 0.18, release);
-    });
-}
-
-function stopMusic() {
-    if (!state.music) {
-        return;
-    }
-
-    const { context, voices, master, rafId } = state.music;
-    if (!master || !voices) {
-        state.music = null;
-        return;
-    }
-    const now = context.currentTime;
-    cancelAnimationFrame(rafId);
-    master.gain.cancelScheduledValues(now);
-    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
-    voices.forEach((voice) => {
-        voice.gain.gain.cancelScheduledValues(now);
-        voice.gain.gain.setTargetAtTime(0.0001, now, 0.08);
-        voice.oscillator.stop(now + 0.55);
-    });
-    state.music = { context };
-}
-
 async function toggleBeat() {
     if (state.beatOn) {
         state.beatOn = false;
@@ -741,11 +645,12 @@ async function toggleBeat() {
         return;
     }
 
+    state.audioMessage = "";
     const started = await startBeat();
     state.beatOn = started;
     els.beatButton.setAttribute("aria-pressed", String(started));
     els.beatButton.classList.toggle("playing", started);
-    updateAudioStatus(started ? null : "audio blocked");
+    updateAudioStatus(started ? null : state.audioMessage || "audio blocked");
 }
 
 async function startBeat() {
@@ -754,10 +659,10 @@ async function startBeat() {
         return false;
     }
 
+    const mode = currentBeatMode();
     const master = context.createGain();
     const compressor = context.createDynamicsCompressor();
-    const tempo = 165;
-    const stepDuration = 60 / tempo / 2;
+    const stepDuration = 60 / mode.tempo / 2;
     let step = 0;
     let nextTime = context.currentTime + 0.05;
     let timer = 0;
@@ -770,13 +675,13 @@ async function startBeat() {
     compressor.release.value = 0.12;
     master.connect(compressor);
     compressor.connect(context.destination);
-    master.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.35);
+    master.gain.exponentialRampToValueAtTime(mode.gain, context.currentTime + 0.35);
     playKick(context, master, context.currentTime + 0.02);
     playHat(context, master, context.currentTime + 0.05, 0.08);
 
     const schedule = () => {
         while (nextTime < context.currentTime + 0.16) {
-            scheduleJungleStep(context, master, step, nextTime);
+            scheduleBeatStep(context, master, step, nextTime, mode.value);
             nextTime += stepDuration;
             step += 1;
         }
@@ -786,6 +691,24 @@ async function startBeat() {
     timer = window.setInterval(schedule, 35);
     state.beat = { context, master, timer };
     return true;
+}
+
+function currentBeatMode() {
+    return beatModes.find((mode) => mode.value === state.beatMode) || beatModes[0];
+}
+
+function scheduleBeatStep(context, destination, step, time, mode) {
+    if (mode === "lofi") {
+        scheduleLofiStep(context, destination, step, time);
+    } else if (mode === "neon") {
+        scheduleNeonStep(context, destination, step, time);
+    } else if (mode === "matrix") {
+        scheduleMatrixStep(context, destination, step, time);
+    } else if (mode === "glitch") {
+        scheduleGlitchStep(context, destination, step, time);
+    } else {
+        scheduleJungleStep(context, destination, step, time);
+    }
 }
 
 function scheduleJungleStep(context, destination, step, time) {
@@ -810,6 +733,74 @@ function scheduleJungleStep(context, destination, step, time) {
     }
 }
 
+function scheduleLofiStep(context, destination, step, time) {
+    const pattern = step % 16;
+    const swing = pattern % 2 ? 0.026 : 0;
+    const t = time + swing;
+
+    if ([0, 8].includes(pattern)) {
+        playKick(context, destination, t);
+    }
+    if ([4, 12].includes(pattern)) {
+        playSnare(context, destination, t, 0.28);
+    }
+    if (pattern % 2 === 0) {
+        playHat(context, destination, t, pattern % 8 === 0 ? 0.045 : 0.024);
+    }
+    if ([2, 10].includes(pattern)) {
+        playToneBlip(context, destination, t, pattern === 2 ? 246.94 : 196, 0.038);
+    }
+}
+
+function scheduleNeonStep(context, destination, step, time) {
+    const pattern = step % 16;
+    if ([0, 4, 8, 12].includes(pattern)) {
+        playKick(context, destination, time);
+    }
+    if ([4, 12].includes(pattern)) {
+        playSnare(context, destination, time, 0.24);
+    }
+    if (pattern % 2 === 1) {
+        playHat(context, destination, time, 0.034);
+    }
+    if ([3, 7, 11, 15].includes(pattern)) {
+        playToneBlip(context, destination, time + 0.01, 392 + (pattern % 8) * 18, 0.025);
+    }
+}
+
+function scheduleMatrixStep(context, destination, step, time) {
+    const pattern = step % 16;
+    const t = time + (pattern % 2 ? 0.012 : 0);
+    if ([0, 5, 10].includes(pattern)) {
+        playKick(context, destination, t);
+    }
+    if ([4, 12].includes(pattern)) {
+        playSnare(context, destination, t, 0.34);
+    }
+    if ([2, 3, 6, 7, 10, 11, 14, 15].includes(pattern)) {
+        playHat(context, destination, t, 0.036);
+    }
+    if ([7, 15].includes(pattern)) {
+        playGhostSnare(context, destination, t);
+    }
+}
+
+function scheduleGlitchStep(context, destination, step, time) {
+    const pattern = step % 16;
+    if ([0, 9].includes(pattern)) {
+        playKick(context, destination, time);
+    }
+    if ([5, 13].includes(pattern)) {
+        playSnare(context, destination, time, 0.2);
+    }
+    if ([1, 4, 6, 11, 14].includes(pattern)) {
+        playHat(context, destination, time, 0.026);
+    }
+    if ([3, 8, 15].includes(pattern)) {
+        playToneBlip(context, destination, time, 310 + pattern * 9, 0.018);
+    }
+}
+
 function playKick(context, destination, time) {
     const osc = context.createOscillator();
     const gain = context.createGain();
@@ -825,7 +816,7 @@ function playKick(context, destination, time) {
     osc.stop(time + 0.24);
 }
 
-function playSnare(context, destination, time) {
+function playSnare(context, destination, time, level = 0.42) {
     const noise = createNoiseSource(context, 0.18);
     const filter = context.createBiquadFilter();
     const gain = context.createGain();
@@ -833,12 +824,26 @@ function playSnare(context, destination, time) {
     filter.frequency.value = 1850;
     filter.Q.value = 0.8;
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(0.42, time + 0.012);
+    gain.gain.exponentialRampToValueAtTime(level, time + 0.012);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(destination);
     noise.start(time);
+}
+
+function playToneBlip(context, destination, time, frequency, level) {
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(frequency, time);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(level, time + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.1);
+    osc.connect(gain);
+    gain.connect(destination);
+    osc.start(time);
+    osc.stop(time + 0.12);
 }
 
 function playGhostSnare(context, destination, time) {
@@ -913,29 +918,6 @@ function stopBeat() {
     master.gain.cancelScheduledValues(now);
     master.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
     state.beat = { context };
-}
-
-function perlin1D(value) {
-    const left = Math.floor(value);
-    const right = left + 1;
-    const local = value - left;
-    const eased = fade(local);
-    const a = gradient(left) * local;
-    const b = gradient(right) * (local - 1);
-    return lerp(a, b, eased) * 2;
-}
-
-function gradient(index) {
-    const x = Math.sin(index * 127.1 + 311.7) * 43758.5453123;
-    return (x - Math.floor(x)) < 0.5 ? -1 : 1;
-}
-
-function fade(value) {
-    return value * value * value * (value * (value * 6 - 15) + 10);
-}
-
-function lerp(a, b, amount) {
-    return a + (b - a) * amount;
 }
 
 init();
