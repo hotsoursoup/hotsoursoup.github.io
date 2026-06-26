@@ -585,6 +585,29 @@ function renderList(block) {
 }
 
 function renderCode(block) {
+    const panel = document.createElement("section");
+    panel.className = "code-panel";
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "code-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = `<span>show code</span><span class="code-line" aria-hidden="true"></span>`;
+
+    const drawer = document.createElement("div");
+    drawer.className = "code-drawer";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "code-toolbar";
+
+    const language = document.createElement("span");
+    language.textContent = block.language ? `${block.language} code` : "code";
+
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-code";
+    copy.textContent = "copy code";
+
     const pre = document.createElement("pre");
     const code = document.createElement("code");
     code.textContent = block.code || "";
@@ -592,7 +615,32 @@ function renderCode(block) {
         code.dataset.language = block.language;
     }
     pre.append(code);
-    return pre;
+
+    toggle.addEventListener("click", () => {
+        const isOpen = panel.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.querySelector("span").textContent = isOpen ? "hide code" : "show code";
+    });
+
+    copy.addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(block.code || "");
+            copy.textContent = "copied";
+            window.setTimeout(() => {
+                copy.textContent = "copy code";
+            }, 1200);
+        } catch {
+            copy.textContent = "copy failed";
+            window.setTimeout(() => {
+                copy.textContent = "copy code";
+            }, 1200);
+        }
+    });
+
+    toolbar.append(language, copy);
+    drawer.append(toolbar, pre);
+    panel.append(toggle, drawer);
+    return panel;
 }
 
 function imageSource(block, post) {

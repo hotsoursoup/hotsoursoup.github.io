@@ -727,7 +727,7 @@ figure {
 .image-block.is-portrait,
 .image-block.image-align-left,
 .image-block.image-align-right {
-    width: min(42%, 360px);
+    width: min(34%, 300px);
     margin-top: 6px;
     margin-bottom: 12px;
 }
@@ -759,7 +759,7 @@ img {
 .image-block.is-portrait img,
 .image-block.image-align-left img,
 .image-block.image-align-right img {
-    max-height: 430px;
+    max-height: 320px;
     object-fit: cover;
 }
 
@@ -808,15 +808,99 @@ figcaption {
     aspect-ratio: 1;
 }
 
-pre {
+.code-panel {
+    clear: both;
+    width: 100%;
+    margin: 16px 0;
+}
+
+.code-toggle {
+    display: grid;
+    grid-template-columns: auto minmax(44px, 1fr);
+    align-items: center;
+    gap: 10px;
+    width: min(100%, 360px);
+    border: 0;
+    color: var(--ink);
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 850;
+    letter-spacing: 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+.code-line {
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-c), transparent);
+    transform-origin: left center;
+    transition: height 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.code-panel.is-open .code-line {
+    height: 12px;
+    transform: scaleX(1.08);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--accent-a) 42%, transparent);
+}
+
+.code-drawer {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: grid-template-rows 260ms ease, opacity 180ms ease, transform 260ms ease;
+}
+
+.code-panel.is-open .code-drawer {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.code-drawer > * {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.code-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 15px 15px 0 0;
+    color: #dffcff;
+    background: linear-gradient(135deg, rgba(10, 16, 31, 0.98), rgba(32, 28, 62, 0.96));
+    font-size: 0.76rem;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+.copy-code {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    color: #dffcff;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.code-panel pre {
     overflow-x: auto;
     border: 1px solid var(--line);
-    border-radius: 15px;
+    border-radius: 0 0 15px 15px;
     background:
         linear-gradient(135deg, rgba(10, 16, 31, 0.96), rgba(32, 28, 62, 0.95)),
         #09111f;
     color: #dffcff;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    margin: 0;
     padding: 14px;
 }
 
