@@ -517,6 +517,7 @@ h1 {
 .post-card,
 .empty-state {
     --post-glow: color-mix(in srgb, var(--post-accent, var(--accent-a)) 28%, transparent);
+    container-type: inline-size;
     position: relative;
     isolation: isolate;
     min-width: 0;
@@ -754,7 +755,7 @@ img {
     width: 100%;
     height: auto;
     max-height: 520px;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     border: 0;
     border-radius: inherit;
@@ -765,7 +766,7 @@ img {
 .image-block.image-align-left img,
 .image-block.image-align-right img {
     max-height: 320px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .image-block.is-portrait:not(.image-align-left):not(.image-align-right) img {
@@ -806,6 +807,21 @@ figcaption {
     margin-bottom: 0;
 }
 
+.media-text-copy {
+    min-width: 0;
+}
+
+@container (max-width: 680px) {
+    .media-text,
+    .media-text-right {
+        grid-template-columns: 1fr;
+    }
+
+    .media-text-right figure {
+        order: 2;
+    }
+}
+
 .gallery {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
@@ -817,7 +833,9 @@ figcaption {
 }
 
 .gallery img {
-    aspect-ratio: 1;
+    max-height: 360px;
+    object-fit: contain;
+    background: color-mix(in srgb, var(--glass-strong) 62%, transparent);
 }
 
 .code-panel {
@@ -1021,7 +1039,7 @@ figcaption {
     }
 
     .media-text-right figure {
-        order: 0;
+        order: 2;
     }
 }
 
