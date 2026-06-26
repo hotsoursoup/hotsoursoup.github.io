@@ -1,7 +1,8 @@
 {
   "site": {
     "title": "Hot Sour Soup",
-    "subtitle": "A soft static journal for shared notes, images, links, and experiments."
+    "subtitle": "A soft static journal for shared notes, images, links, and experiments.",
+    "profileImage": ""
   },
   "authors": {
     "himanshu": {

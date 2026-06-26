@@ -13,8 +13,7 @@ const state = {
     beat: null,
     beatOn: false,
     beatMode: "jungle",
-    visualTheme: "aura",
-    wpiStyle: "portal"
+    visualTheme: "aura"
 };
 
 const visualThemes = [
@@ -24,14 +23,6 @@ const visualThemes = [
     { value: "plasma", label: "Plasma" },
     { value: "mono", label: "Mono Glass" },
     { value: "sunset", label: "Solar Pop" }
-];
-
-const wpiStyles = [
-    { value: "portal", label: "Portal Ring" },
-    { value: "kaleidoscope", label: "Kaleidoscope" },
-    { value: "halo", label: "Soft Halo" },
-    { value: "prism", label: "Prism Spin" },
-    { value: "minimal", label: "Minimal Orb" }
 ];
 
 const beatModes = [
@@ -51,7 +42,6 @@ const els = {
     tagFilter: document.querySelector("#tag-filter"),
     themeFilter: document.querySelector("#theme-filter"),
     visualTheme: document.querySelector("#visual-theme"),
-    wpiStyle: document.querySelector("#wpi-style"),
     searchFilter: document.querySelector("#search-filter"),
     clearFilters: document.querySelector("#clear-filters"),
     emptyTemplate: document.querySelector("#empty-state-template"),
@@ -85,11 +75,10 @@ async function init() {
         state.posts = postGroups.flat().sort((a, b) => b.date.localeCompare(a.date));
         state.filters.author = getInitialAuthor(authorEntries);
         state.visualTheme = getInitialVisualTheme();
-        state.wpiStyle = getInitialWpiStyle();
         state.beatMode = getInitialBeatMode();
 
+        applySiteConfig();
         applyVisualTheme(state.visualTheme);
-        applyWpiStyle(state.wpiStyle);
         buildFilters();
         bindEvents();
         setActiveNav();
@@ -149,7 +138,6 @@ function buildFilters() {
     fillSelect(els.tagFilter, [{ value: "all", label: "All tags" }, ...tags.map((tag) => ({ value: tag, label: tag }))]);
     fillSelect(els.themeFilter, [{ value: "all", label: "All themes" }, ...themes]);
     fillSelect(els.visualTheme, visualThemes, state.visualTheme);
-    fillSelect(els.wpiStyle, wpiStyles, state.wpiStyle);
     fillSelect(els.beatMode, beatModes, state.beatMode);
 }
 
@@ -182,11 +170,6 @@ function bindEvents() {
         state.visualTheme = els.visualTheme.value;
         applyVisualTheme(state.visualTheme);
         localStorage.setItem("hotSourSoupTheme", state.visualTheme);
-    });
-    els.wpiStyle.addEventListener("change", () => {
-        state.wpiStyle = els.wpiStyle.value;
-        applyWpiStyle(state.wpiStyle);
-        localStorage.setItem("hotSourSoupWpiStyle", state.wpiStyle);
     });
     els.beatMode.addEventListener("change", () => {
         state.beatMode = els.beatMode.value;
@@ -249,28 +232,53 @@ function getInitialVisualTheme() {
     return "aura";
 }
 
-function getInitialWpiStyle() {
-    const savedStyle = localStorage.getItem("hotSourSoupWpiStyle");
-    const validStyles = new Set(wpiStyles.map((style) => style.value));
-    return validStyles.has(savedStyle) ? savedStyle : "portal";
-}
-
 function getInitialBeatMode() {
     const savedMode = localStorage.getItem("hotSourSoupBeatMode");
     const validModes = new Set(beatModes.map((mode) => mode.value));
     return validModes.has(savedMode) ? savedMode : "jungle";
 }
 
+function applySiteConfig() {
+    const site = state.config.site || {};
+    const logoText = document.querySelector(".logo-text");
+    const logoMark = document.querySelector(".logo-mark");
+    const title = site.title || "Hot Sour Soup";
+
+    if (logoText) {
+        logoText.textContent = title;
+    }
+
+    if (!logoMark) {
+        return;
+    }
+
+    logoMark.innerHTML = "";
+    if (site.profileImage) {
+        const img = document.createElement("img");
+        img.src = site.profileImage;
+        img.alt = `${title} profile image`;
+        logoMark.classList.add("has-profile-image");
+        logoMark.append(img);
+    } else {
+        logoMark.classList.remove("has-profile-image");
+        logoMark.textContent = initials(title);
+    }
+}
+
+function initials(value) {
+    return String(value || "Hot Sour Soup")
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 3)
+        .map((word) => word[0])
+        .join("")
+        .toLowerCase();
+}
+
 function applyVisualTheme(theme) {
     const validThemes = new Set(visualThemes.map((item) => item.value));
     const nextTheme = validThemes.has(theme) ? theme : "aura";
     document.documentElement.dataset.visualTheme = nextTheme;
-}
-
-function applyWpiStyle(style) {
-    const validStyles = new Set(wpiStyles.map((item) => item.value));
-    const nextStyle = validStyles.has(style) ? style : "portal";
-    document.documentElement.dataset.wpiStyle = nextStyle;
 }
 
 function getInitialAuthor(authorEntries) {

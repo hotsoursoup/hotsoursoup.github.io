@@ -260,62 +260,18 @@ select {
     box-shadow: 0 0 24px color-mix(in srgb, var(--accent-a) 34%, transparent), inset 0 1px 10px rgba(255, 255, 255, 0.50);
 }
 
-.logo-mark::before,
-.logo-mark::after {
-    content: "";
-    position: absolute;
+.logo-mark.has-profile-image {
+    overflow: hidden;
+    background: var(--glass-strong);
+    padding: 0;
+}
+
+.logo-mark.has-profile-image img {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: cover;
     border-radius: inherit;
-    pointer-events: none;
-}
-
-.logo-mark::before {
-    inset: -6px;
-    z-index: -2;
-    background: conic-gradient(from 0deg, transparent 0 14%, var(--accent-a), transparent 30% 46%, var(--accent-c), transparent 66% 82%, var(--accent-d), transparent);
-    filter: blur(0.2px);
-    opacity: 0.86;
-    animation: wpi-spin 7s linear infinite;
-}
-
-.logo-mark::after {
-    inset: 3px;
-    z-index: -1;
-    background:
-        radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.85), transparent 24%),
-        conic-gradient(from 80deg, color-mix(in srgb, var(--accent-a) 80%, white), var(--accent-b), var(--accent-c), color-mix(in srgb, var(--accent-d) 72%, white), var(--accent-a));
-    mix-blend-mode: screen;
-    opacity: 0.25;
-    animation: wpi-pulse 5s ease-in-out infinite;
-}
-
-:root[data-wpi-style="kaleidoscope"] .logo-mark::before {
-    inset: -4px;
-    background: repeating-conic-gradient(from 0deg, var(--accent-a) 0 10deg, var(--accent-b) 10deg 20deg, var(--accent-c) 20deg 30deg, transparent 30deg 44deg);
-    animation-duration: 12s;
-}
-
-:root[data-wpi-style="kaleidoscope"] .logo-mark::after {
-    opacity: 0.38;
-    background: repeating-conic-gradient(from 45deg, rgba(255, 255, 255, 0.9) 0 8deg, transparent 8deg 18deg);
-}
-
-:root[data-wpi-style="halo"] .logo-mark::before {
-    inset: -8px;
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent-a) 72%, transparent), transparent 68%);
-    filter: blur(5px);
-    animation: wpi-breathe 4.8s ease-in-out infinite;
-}
-
-:root[data-wpi-style="prism"] .logo-mark::before {
-    inset: -6px;
-    border-radius: 36% 64% 54% 46% / 55% 35% 65% 45%;
-    background: conic-gradient(from 130deg, var(--accent-a), var(--accent-b), var(--accent-c), var(--accent-d), var(--accent-a));
-    animation-duration: 5.5s;
-}
-
-:root[data-wpi-style="minimal"] .logo-mark::before,
-:root[data-wpi-style="minimal"] .logo-mark::after {
-    display: none;
 }
 
 .logo-text {
@@ -438,31 +394,40 @@ h1 {
     align-self: end;
     justify-self: end;
     display: grid;
-    gap: 8px;
-    width: min(100%, 176px);
+    grid-template-columns: minmax(126px, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+    width: min(100%, 310px);
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--glass-strong) 70%, transparent);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48), 0 12px 30px rgba(25, 35, 56, 0.10);
+    backdrop-filter: blur(18px);
 }
 
 .deck-select {
-    display: grid;
-    gap: 4px;
-    color: var(--muted);
-    font-size: 0.64rem;
-    font-weight: 850;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
+    min-width: 0;
+}
+
+.deck-select span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
 }
 
 .deck-select select {
     width: 100%;
-    min-height: 38px;
-    border: 1px solid var(--line);
+    min-height: 34px;
+    border: 0;
     border-radius: 999px;
     color: var(--ink);
-    background: color-mix(in srgb, var(--glass-strong) 80%, transparent);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 20px rgba(25, 35, 56, 0.08);
-    padding: 8px 12px;
+    background: transparent;
+    box-shadow: none;
+    padding: 7px 8px;
     outline: none;
-    backdrop-filter: blur(16px);
 }
 
 .radio-button {
@@ -470,12 +435,12 @@ h1 {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
-    min-width: 136px;
-    min-height: 40px;
+    min-width: 94px;
+    min-height: 34px;
     color: #ffffff;
     background: linear-gradient(135deg, #111827, #29324f 48%, #512078);
     border-color: rgba(255, 255, 255, 0.38);
+    padding: 7px 10px;
 }
 
 .radio-light {
@@ -496,16 +461,17 @@ h1 {
 }
 
 .audio-status {
-    margin: 0;
+    grid-column: 1 / -1;
+    margin: -1px 0 1px;
     color: var(--muted);
-    font-size: 0.76rem;
+    font-size: 0.68rem;
     font-weight: 750;
     text-align: center;
 }
 
 .controls {
     display: grid;
-    grid-template-columns: repeat(6, minmax(122px, 1fr));
+    grid-template-columns: repeat(5, minmax(132px, 1fr));
     gap: 10px;
     margin-top: 12px;
     padding: 10px;
@@ -867,26 +833,6 @@ figcaption {
     aspect-ratio: 1;
 }
 
-@keyframes wpi-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes wpi-pulse {
-    50% {
-        opacity: 0.46;
-        transform: scale(1.05);
-    }
-}
-
-@keyframes wpi-breathe {
-    50% {
-        opacity: 0.55;
-        transform: scale(1.18);
-    }
-}
-
 pre {
     overflow-x: auto;
     border: 1px solid var(--line);
@@ -970,6 +916,7 @@ pre {
 
     .sound-deck {
         justify-self: start;
+        width: min(100%, 310px);
     }
 
     .controls {
@@ -1039,5 +986,10 @@ pre {
     .radio-button,
     .status-strip button {
         width: 100%;
+    }
+
+    .sound-deck {
+        grid-template-columns: 1fr;
+        border-radius: 18px;
     }
 }

@@ -280,7 +280,7 @@ Current modes:
 
 There are no audio files, no radio streams, and nothing external to host. This keeps the site portable on GitHub Pages and avoids broken cross-origin streams.
 
-The WPI Art menu changes the animated profile mark in the top bar. It is CSS-only, so it stays light. To replace the `HSS` mark with a real image later, edit the `.logo-mark` element in `index.html` and `aryan.html`, or replace the text with an `<img>` that points to a file in the repository.
+To change the web profile image in the top bar, open the local manager, go to `Site Settings`, and fill `Web Profile Image` with a repository path such as `assets/profile.png`. Leave it blank to use the simple initials mark.
 
 ## Likes
 

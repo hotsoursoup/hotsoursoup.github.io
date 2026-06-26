@@ -48,6 +48,7 @@ const els = {
     saveThemes: document.querySelector("#save-themes"),
     siteTitle: document.querySelector("#site-title"),
     siteSubtitle: document.querySelector("#site-subtitle"),
+    siteProfileImage: document.querySelector("#site-profile-image"),
     authorSettings: document.querySelector("#author-settings"),
     saveSiteConfig: document.querySelector("#save-site-config"),
     postCardTemplate: document.querySelector("#post-card-template")
@@ -766,6 +767,7 @@ async function saveThemes() {
 function renderSiteConfig() {
     els.siteTitle.value = state.config.site?.title || "";
     els.siteSubtitle.value = state.config.site?.subtitle || "";
+    els.siteProfileImage.value = state.config.site?.profileImage || "";
     els.authorSettings.innerHTML = "";
 
     Object.entries(state.config.authors).forEach(([id, author]) => {
@@ -791,7 +793,8 @@ async function saveSiteConfig() {
 
     state.config.site = {
         title: els.siteTitle.value,
-        subtitle: els.siteSubtitle.value
+        subtitle: els.siteSubtitle.value,
+        profileImage: els.siteProfileImage.value.trim()
     };
     const authors = {};
     els.authorSettings.querySelectorAll(".author-card").forEach((card) => {
