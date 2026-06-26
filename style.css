@@ -724,7 +724,6 @@ figure {
     box-shadow: 0 12px 32px rgba(20, 31, 52, 0.12);
 }
 
-.image-block.is-portrait,
 .image-block.image-align-left,
 .image-block.image-align-right {
     width: min(34%, 300px);
@@ -732,7 +731,6 @@ figure {
     margin-bottom: 12px;
 }
 
-.image-block.is-portrait,
 .image-block.image-align-right {
     float: right;
     margin-left: 18px;
@@ -741,6 +739,12 @@ figure {
 .image-block.image-align-left {
     float: left;
     margin-right: 18px;
+}
+
+.image-block.is-portrait:not(.image-align-left):not(.image-align-right) {
+    width: min(100%, 620px);
+    margin-right: auto;
+    margin-left: auto;
 }
 
 img {
@@ -756,11 +760,15 @@ img {
     box-shadow: none;
 }
 
-.image-block.is-portrait img,
 .image-block.image-align-left img,
 .image-block.image-align-right img {
     max-height: 320px;
     object-fit: cover;
+}
+
+.image-block.is-portrait:not(.image-align-left):not(.image-align-right) img {
+    max-height: 620px;
+    object-fit: contain;
 }
 
 figcaption {
