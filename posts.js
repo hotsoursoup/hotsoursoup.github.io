@@ -142,6 +142,10 @@ function buildFilters() {
 }
 
 function fillSelect(select, options, selected = "all") {
+    if (!select) {
+        return;
+    }
+
     select.innerHTML = "";
     options.forEach((option) => {
         const item = document.createElement("option");
@@ -153,25 +157,34 @@ function fillSelect(select, options, selected = "all") {
 }
 
 function bindEvents() {
-    els.authorFilter.addEventListener("change", () => {
+    if (els.authorFilter) {
+        els.authorFilter.addEventListener("change", () => {
         state.filters.author = els.authorFilter.value;
         setActiveNav();
         render();
-    });
-    els.tagFilter.addEventListener("change", () => {
+        });
+    }
+    if (els.tagFilter) {
+        els.tagFilter.addEventListener("change", () => {
         state.filters.tag = els.tagFilter.value;
         render();
-    });
-    els.themeFilter.addEventListener("change", () => {
+        });
+    }
+    if (els.themeFilter) {
+        els.themeFilter.addEventListener("change", () => {
         state.filters.theme = els.themeFilter.value;
         render();
-    });
-    els.visualTheme.addEventListener("change", () => {
+        });
+    }
+    if (els.visualTheme) {
+        els.visualTheme.addEventListener("change", () => {
         state.visualTheme = els.visualTheme.value;
         applyVisualTheme(state.visualTheme);
         localStorage.setItem("hotSourSoupTheme", state.visualTheme);
-    });
-    els.beatMode.addEventListener("change", () => {
+        });
+    }
+    if (els.beatMode) {
+        els.beatMode.addEventListener("change", () => {
         state.beatMode = els.beatMode.value;
         localStorage.setItem("hotSourSoupBeatMode", state.beatMode);
         if (state.beatOn) {
@@ -185,11 +198,14 @@ function bindEvents() {
         } else {
             updateAudioStatus();
         }
-    });
-    els.searchFilter.addEventListener("input", () => {
+        });
+    }
+    if (els.searchFilter) {
+        els.searchFilter.addEventListener("input", () => {
         state.filters.search = els.searchFilter.value.trim().toLowerCase();
         render();
-    });
+        });
+    }
     const currentPage = window.location.pathname.split("/").pop();
     const canFilterInPlace = currentPage === "" || currentPage === "index.html";
     document.querySelectorAll("[data-nav-author]").forEach((link) => {
@@ -204,16 +220,20 @@ function bindEvents() {
             window.history.pushState({}, "", url);
         });
     });
-    els.clearFilters.addEventListener("click", () => {
+    if (els.clearFilters) {
+        els.clearFilters.addEventListener("click", () => {
         state.filters = { author: "all", tag: "all", theme: "all", search: "" };
-        els.authorFilter.value = "all";
-        els.tagFilter.value = "all";
-        els.themeFilter.value = "all";
-        els.searchFilter.value = "";
+        if (els.authorFilter) els.authorFilter.value = "all";
+        if (els.tagFilter) els.tagFilter.value = "all";
+        if (els.themeFilter) els.themeFilter.value = "all";
+        if (els.searchFilter) els.searchFilter.value = "";
         setActiveNav();
         render();
-    });
-    els.beatButton.addEventListener("click", toggleBeat);
+        });
+    }
+    if (els.beatButton) {
+        els.beatButton.addEventListener("click", toggleBeat);
+    }
 }
 
 function getInitialVisualTheme() {

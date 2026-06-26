@@ -394,40 +394,16 @@ h1 {
     align-self: end;
     justify-self: end;
     display: grid;
-    grid-template-columns: minmax(126px, 1fr) auto;
+    grid-template-columns: 1fr;
     align-items: center;
     gap: 6px;
-    width: min(100%, 310px);
+    width: min(100%, 150px);
     padding: 6px;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: 18px;
     background: color-mix(in srgb, var(--glass-strong) 70%, transparent);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48), 0 12px 30px rgba(25, 35, 56, 0.10);
     backdrop-filter: blur(18px);
-}
-
-.deck-select {
-    min-width: 0;
-}
-
-.deck-select span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-}
-
-.deck-select select {
-    width: 100%;
-    min-height: 34px;
-    border: 0;
-    border-radius: 999px;
-    color: var(--ink);
-    background: transparent;
-    box-shadow: none;
-    padding: 7px 8px;
-    outline: none;
 }
 
 .radio-button {
@@ -461,8 +437,7 @@ h1 {
 }
 
 .audio-status {
-    grid-column: 1 / -1;
-    margin: -1px 0 1px;
+    margin: 0 0 1px;
     color: var(--muted);
     font-size: 0.68rem;
     font-weight: 750;
@@ -916,7 +891,7 @@ pre {
 
     .sound-deck {
         justify-self: start;
-        width: min(100%, 310px);
+        width: min(100%, 150px);
     }
 
     .controls {
