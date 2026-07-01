@@ -217,9 +217,6 @@ select {
 }
 
 .site-header {
-    position: sticky;
-    top: 10px;
-    z-index: 20;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -976,10 +973,22 @@ figcaption {
 }
 
 @media (max-width: 760px) {
+    html {
+        background:
+            radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent-a) 16%, transparent), transparent 18rem),
+            linear-gradient(135deg, var(--bg-a), var(--bg-b) 48%, var(--bg-c));
+    }
+
+    body::before,
+    body::after {
+        display: none;
+    }
+
     .site-header {
         border-radius: 22px;
         align-items: flex-start;
         flex-direction: column;
+        backdrop-filter: none;
     }
 
     .site-nav {
@@ -994,10 +1003,16 @@ figcaption {
 
     .intro-panel {
         min-height: 305px;
+        box-shadow: var(--shadow-soft);
+        backdrop-filter: none;
+    }
+
+    .intro-panel::before {
+        opacity: 0.55;
     }
 
     .intro-panel::after {
-        opacity: 0.48;
+        opacity: 0.24;
     }
 
     .sound-deck {
@@ -1019,6 +1034,18 @@ figcaption {
 
     .post-card:first-child {
         grid-column: auto;
+    }
+
+    .controls,
+    .post-card,
+    .empty-state {
+        backdrop-filter: none;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .post-card {
+        content-visibility: auto;
+        contain-intrinsic-size: 520px;
     }
 
     .post-header time {
