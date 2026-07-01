@@ -519,13 +519,113 @@ function insertBlock(type) {
 function renderPreview() {
     els.postPreview.innerHTML = "";
     try {
-        els.postPreview.append(renderPreviewPost(previewPostFromForm()));
+        const wrapper = document.createElement("div");
+        wrapper.append(renderPreviewPost(previewPostFromForm()));
+        const frame = document.createElement("iframe");
+        frame.className = "public-preview-frame";
+        frame.title = "Public website preview";
+        frame.srcdoc = previewDocument(wrapper.innerHTML);
+        frame.addEventListener("load", () => setupPreviewFrame(frame));
+        els.postPreview.append(frame);
     } catch (error) {
         const warning = document.createElement("article");
         warning.className = "preview-error";
         warning.innerHTML = `<strong>Preview is waiting.</strong><p>${escapeHtml(error.message)}</p>`;
         els.postPreview.append(warning);
     }
+}
+
+function previewDocument(postHtml) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <base href="../">
+    <link rel="stylesheet" href="style.css?v=20260701-1">
+    <style>
+        html, body { min-height: auto; background: transparent; }
+        body { margin: 0; overflow: hidden; }
+        body::before, body::after { display: none; }
+        .post-card { margin: 0; box-shadow: 0 10px 28px rgba(29, 42, 70, 0.10); }
+        .preview-image-fallback {
+            min-width: min(100%, 280px);
+            min-height: 130px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            color: var(--muted);
+            background: color-mix(in srgb, var(--glass-strong) 72%, transparent);
+            padding: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    ${postHtml}
+</body>
+</html>`;
+}
+
+function setupPreviewFrame(frame) {
+    const document = frame.contentDocument;
+    if (!document) {
+        return;
+    }
+
+    document.querySelectorAll(".code-toggle").forEach((toggle) => {
+        toggle.addEventListener("click", () => {
+            const panel = toggle.closest(".code-panel");
+            const isOpen = panel.classList.toggle("is-open");
+            toggle.setAttribute("aria-expanded", String(isOpen));
+            toggle.querySelector("span").textContent = isOpen ? "hide code" : "show code";
+            resizePreviewFrame(frame);
+        });
+    });
+
+    document.querySelectorAll(".copy-code").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const code = button.closest(".code-panel")?.querySelector("code")?.textContent || "";
+            try {
+                await navigator.clipboard.writeText(code);
+                button.textContent = "copied";
+                window.setTimeout(() => {
+                    button.textContent = "copy code";
+                }, 1200);
+            } catch {
+                button.textContent = "copy failed";
+                window.setTimeout(() => {
+                    button.textContent = "copy code";
+                }, 1200);
+            }
+        });
+    });
+
+    document.querySelectorAll("img").forEach((img) => {
+        img.addEventListener("load", () => resizePreviewFrame(frame));
+        img.addEventListener("error", () => {
+            const fallback = document.createElement("div");
+            fallback.className = "preview-image-fallback";
+            fallback.textContent = `Image not found: ${img.getAttribute("src") || "missing source"}`;
+            img.replaceWith(fallback);
+            resizePreviewFrame(frame);
+        });
+    });
+
+    resizePreviewFrame(frame);
+    window.setTimeout(() => resizePreviewFrame(frame), 300);
+}
+
+function resizePreviewFrame(frame) {
+    const document = frame.contentDocument;
+    if (!document) {
+        return;
+    }
+    const height = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        260
+    );
+    frame.style.height = `${height}px`;
 }
 
 function previewPostFromForm() {

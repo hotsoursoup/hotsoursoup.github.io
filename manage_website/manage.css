@@ -560,6 +560,14 @@ textarea:focus {
     gap: 12px;
 }
 
+.public-preview-frame {
+    width: 100%;
+    min-height: 260px;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+}
+
 #post-preview .post-card {
     --post-glow: color-mix(in srgb, var(--post-accent, var(--accent-2)) 28%, transparent);
     position: relative;
