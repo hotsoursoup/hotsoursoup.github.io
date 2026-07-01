@@ -105,9 +105,16 @@ function bindEvents() {
     els.savePostOrder.addEventListener("click", savePostOrder);
     els.postForm.addEventListener("submit", savePostFromForm);
     els.postContent.addEventListener("input", syncBlocksFromJson);
+    els.postAuthor.addEventListener("change", () => {
+        updateImageStatusIndicators();
+        renderPreview();
+    });
     els.postTitle.addEventListener("input", renderPreview);
+    els.postDate.addEventListener("input", renderPreview);
+    els.postTag.addEventListener("input", renderPreview);
     els.postTags.addEventListener("input", renderPreview);
     els.postTheme.addEventListener("change", renderPreview);
+    els.postDraft.addEventListener("change", renderPreview);
     els.newPost.addEventListener("click", () => loadPostIntoEditor(blankPost(), state.selectedAuthor));
     els.duplicatePost.addEventListener("click", duplicateCurrentPost);
     els.deletePost.addEventListener("click", deleteCurrentPost);
@@ -373,6 +380,7 @@ function loadPostIntoEditor(post, authorId, index = null) {
     syncJsonFromBlocks();
     renderBlockBuilder();
     renderPreview();
+    updateImageStatusIndicators();
 }
 
 function blankPost() {
@@ -509,28 +517,251 @@ function insertBlock(type) {
 }
 
 function renderPreview() {
-    const content = state.currentBlocks || [];
-
-    const tags = csv(els.postTags.value).map((tag) => `#${escapeHtml(tag)}`).join(" ");
-    els.postPreview.innerHTML = `
-        <h3>${escapeHtml(els.postTitle.value || "Untitled Post")}</h3>
-        <p>${escapeHtml(els.postDate.value || today())} | ${escapeHtml(els.postTheme.value || "theme")}</p>
-        <p>${tags}</p>
-        ${content.map(previewBlock).join("")}
-    `;
+    els.postPreview.innerHTML = "";
+    try {
+        els.postPreview.append(renderPreviewPost(previewPostFromForm()));
+    } catch (error) {
+        const warning = document.createElement("article");
+        warning.className = "preview-error";
+        warning.innerHTML = `<strong>Preview is waiting.</strong><p>${escapeHtml(error.message)}</p>`;
+        els.postPreview.append(warning);
+    }
 }
 
-function previewBlock(block) {
-    if (block.type === "heading") return `<h4>${escapeHtml(block.text || "")}</h4>`;
-    if (block.type === "text") return `<p>${escapeHtml(block.text || "")}</p>`;
-    if (block.type === "quote") return `<blockquote>${escapeHtml(block.text || "")}</blockquote>`;
-    if (block.type === "link") return `<p>Link: ${escapeHtml(block.text || block.url || "")}</p>`;
-    if (block.type === "image") return `<p>Image: ${escapeHtml(block.src || block.url || "")}</p>`;
-    if (block.type === "imageText") return `<p>Image + Text: ${escapeHtml(block.src || block.url || "")} / ${escapeHtml(block.position || "left")}</p>`;
-    if (block.type === "gallery") return `<p>Gallery: ${(block.images || []).length} images</p>`;
-    if (block.type === "list") return `<p>List: ${(block.items || []).join(", ")}</p>`;
-    if (block.type === "code") return `<pre>${escapeHtml(block.code || "")}</pre>`;
-    return `<p>Unknown block: ${escapeHtml(block.type || "")}</p>`;
+function previewPostFromForm() {
+    const authorId = els.postAuthor.value || state.selectedAuthor || Object.keys(state.config?.authors || {})[0];
+    const author = state.config?.authors?.[authorId] || {};
+    const tags = Array.from(new Set([els.postTag.value.trim(), ...csv(els.postTags.value)].filter(Boolean)));
+    return {
+        id: els.postId.value.trim() || "preview-post",
+        title: els.postTitle.value.trim() || "Untitled Post",
+        date: els.postDate.value || today(),
+        tags,
+        theme: els.postTheme.value || Object.keys(state.config?.postThemes || { porcelain: true })[0],
+        content: structuredClone(state.currentBlocks || []),
+        authorId,
+        authorName: author.displayName || "Author",
+        imageFolder: author.imageFolder || "",
+        likes: 0
+    };
+}
+
+function renderPreviewPost(post) {
+    const theme = state.config.postThemes[post.theme] || Object.values(state.config.postThemes)[0] || {};
+    const article = document.createElement("article");
+    article.className = "post-card preview-public-post";
+    article.style.setProperty("--post-accent", theme.accent || "var(--accent-2)");
+    article.style.setProperty("--post-paper", theme.paper || "var(--glass-strong)");
+    article.style.setProperty("--post-tint", theme.tint || "transparent");
+    article.style.setProperty("--post-border", theme.border || "var(--line)");
+
+    const header = document.createElement("header");
+    header.className = "post-header";
+    const headerCopy = document.createElement("div");
+    const kicker = document.createElement("p");
+    kicker.className = "post-kicker";
+    kicker.textContent = `${post.authorName} / ${theme.label || post.theme}`;
+    const title = document.createElement("h2");
+    title.textContent = post.title;
+    headerCopy.append(kicker, title);
+    const time = document.createElement("time");
+    time.dateTime = post.date;
+    time.textContent = formatPreviewDate(post.date);
+    header.append(headerCopy, time);
+
+    const tagRow = document.createElement("div");
+    tagRow.className = "tag-row";
+    post.tags.forEach((tag) => {
+        const tagButton = document.createElement("button");
+        tagButton.type = "button";
+        tagButton.textContent = `#${tag}`;
+        tagButton.disabled = true;
+        tagRow.append(tagButton);
+    });
+
+    const body = document.createElement("div");
+    body.className = "post-body";
+    post.content.forEach((block) => body.append(renderPreviewBlock(block, post)));
+
+    const actions = document.createElement("footer");
+    actions.className = "post-actions preview-actions";
+    actions.innerHTML = `<button type="button" class="like-button" disabled><span class="like-icon" aria-hidden="true">&hearts;</span><span>0 likes</span></button>`;
+
+    article.append(header, tagRow, body, actions);
+    return article;
+}
+
+function renderPreviewBlock(block, post) {
+    switch (block.type) {
+        case "text":
+            return element("p", "post-text", block.text);
+        case "heading":
+            return element("h3", "post-section-heading", block.text);
+        case "quote":
+            return element("blockquote", "", block.text);
+        case "link":
+            return renderPreviewLink(block);
+        case "image":
+            return renderPreviewFigure(block, post);
+        case "imageText":
+            return renderPreviewImageText(block, post);
+        case "gallery":
+            return renderPreviewGallery(block, post);
+        case "list":
+            return renderPreviewList(block);
+        case "code":
+            return renderPreviewCode(block);
+        default:
+            return element("p", "post-text preview-error-line", `Unsupported block type: ${block.type || "unknown"}`);
+    }
+}
+
+function renderPreviewLink(block) {
+    const paragraph = document.createElement("p");
+    const link = document.createElement("a");
+    link.href = block.url || "#";
+    link.textContent = block.text || block.url || "Untitled link";
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    paragraph.append(link);
+    return paragraph;
+}
+
+function renderPreviewFigure(block, post) {
+    const figure = document.createElement("figure");
+    figure.className = `image-block ${block.align ? `image-align-${block.align}` : ""}`.trim();
+    const source = previewImageSource(block, post);
+
+    if (!source) {
+        figure.classList.add("image-missing");
+        figure.append(imageFallback("No image source yet."));
+        return figure;
+    }
+
+    const img = document.createElement("img");
+    img.src = source;
+    img.alt = block.alt || "";
+    img.loading = "lazy";
+    img.addEventListener("load", () => {
+        const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
+        figure.classList.toggle("is-portrait", ratio < 0.86);
+        figure.classList.toggle("is-landscape", ratio >= 0.86);
+    });
+    img.addEventListener("error", () => {
+        figure.classList.add("image-missing");
+        img.replaceWith(imageFallback(`Image not found: ${block.src || block.url || "missing source"}`));
+    });
+    figure.append(img);
+
+    if (block.caption) {
+        const caption = document.createElement("figcaption");
+        caption.textContent = block.caption;
+        figure.append(caption);
+    }
+    return figure;
+}
+
+function imageFallback(message) {
+    const fallback = document.createElement("div");
+    fallback.className = "preview-image-fallback";
+    fallback.textContent = message;
+    return fallback;
+}
+
+function previewImageSource(block, post) {
+    if (block.url) {
+        return block.url;
+    }
+    if (block.src && post.imageFolder) {
+        return `${post.imageFolder}/${block.src}`;
+    }
+    return "";
+}
+
+function renderPreviewImageText(block, post) {
+    const wrapper = document.createElement("div");
+    wrapper.className = `media-text ${block.position === "right" ? "media-text-right" : "media-text-left"}`;
+    const copy = document.createElement("div");
+    copy.className = "media-text-copy";
+    textParagraphs(block.text).forEach((paragraph) => copy.append(element("p", "post-text", paragraph)));
+    wrapper.append(renderPreviewFigure(block, post), copy);
+    return wrapper;
+}
+
+function renderPreviewGallery(block, post) {
+    const gallery = document.createElement("div");
+    gallery.className = "gallery";
+    if (!(block.images || []).length) {
+        gallery.append(imageFallback("No gallery images yet."));
+        return gallery;
+    }
+    (block.images || []).forEach((image) => gallery.append(renderPreviewFigure(image, post)));
+    return gallery;
+}
+
+function renderPreviewList(block) {
+    const list = document.createElement("ul");
+    list.className = "post-list-items";
+    (block.items || []).forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        list.append(li);
+    });
+    return list;
+}
+
+function renderPreviewCode(block) {
+    const panel = document.createElement("section");
+    panel.className = "code-panel";
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "code-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = `<span>show code</span><span class="code-line" aria-hidden="true"></span>`;
+
+    const drawer = document.createElement("div");
+    drawer.className = "code-drawer";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "code-toolbar";
+    const language = document.createElement("span");
+    language.textContent = block.language ? `${block.language} code` : "code";
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-code";
+    copy.textContent = "copy code";
+
+    const pre = document.createElement("pre");
+    const code = document.createElement("code");
+    code.textContent = block.code || "";
+    pre.append(code);
+
+    toggle.addEventListener("click", () => {
+        const isOpen = panel.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.querySelector("span").textContent = isOpen ? "hide code" : "show code";
+    });
+
+    copy.addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(block.code || "");
+            copy.textContent = "copied";
+            window.setTimeout(() => {
+                copy.textContent = "copy code";
+            }, 1200);
+        } catch {
+            copy.textContent = "copy failed";
+            window.setTimeout(() => {
+                copy.textContent = "copy code";
+            }, 1200);
+        }
+    });
+
+    toolbar.append(language, copy);
+    drawer.append(toolbar, pre);
+    panel.append(toggle, drawer);
+    return panel;
 }
 
 function renderBlockBuilder() {
@@ -565,6 +796,7 @@ function renderBlockBuilder() {
         `;
         els.blockBuilder.append(card);
     });
+    updateImageStatusIndicators();
 }
 
 function blockFields(block, index) {
@@ -586,6 +818,7 @@ function blockFields(block, index) {
     if (block.type === "image") {
         return `
             ${fieldInput(index, "src", "Local File Name", block.src || "", "photo.jpg")}
+            ${imageStatusBadge(index, "src")}
             ${fieldInput(index, "url", "Remote Image URL", block.url || "", "https://example.com/photo.jpg")}
             ${fieldInput(index, "alt", "Alt Text", block.alt || "", "Describe the image")}
             ${fieldInput(index, "caption", "Caption", block.caption || "", "Optional caption")}
@@ -599,6 +832,7 @@ function blockFields(block, index) {
                 { value: "right", label: "Right" }
             ])}
             ${fieldInput(index, "src", "Local File Name", block.src || "", "photo.jpg")}
+            ${imageStatusBadge(index, "src")}
             ${fieldInput(index, "url", "Remote Image URL", block.url || "", "https://example.com/photo.jpg")}
             ${fieldInput(index, "alt", "Alt Text", block.alt || "", "Describe the image")}
             ${fieldInput(index, "caption", "Caption", block.caption || "", "Optional caption")}
@@ -625,6 +859,10 @@ function blockFields(block, index) {
     return `<p class="block-hint">Unknown block type. Delete it or edit the JSON drawer.</p>`;
 }
 
+function imageStatusBadge(index, key) {
+    return `<p class="image-file-status checking" data-image-status data-block-index="${index}" data-block-key="${key}">checking image...</p>`;
+}
+
 function fieldInput(index, key, label, value, placeholder) {
     return `<label class="block-field"><span>${label}</span><input data-block-index="${index}" data-block-key="${key}" value="${escapeAttribute(value)}" placeholder="${escapeAttribute(placeholder)}"></label>`;
 }
@@ -639,6 +877,50 @@ function fieldSelect(index, key, label, value, options) {
         return `<option value="${escapeAttribute(option.value)}"${selected}>${escapeHtml(option.label)}</option>`;
     }).join("");
     return `<label class="block-field"><span>${label}</span><select data-block-index="${index}" data-block-key="${key}">${choices}</select></label>`;
+}
+
+async function updateImageStatusIndicators() {
+    const badges = [...document.querySelectorAll("[data-image-status]")];
+    if (!badges.length) {
+        return;
+    }
+
+    await Promise.all(badges.map(async (badge) => {
+        const block = state.currentBlocks[Number(badge.dataset.blockIndex)];
+        const filename = block?.[badge.dataset.blockKey]?.trim();
+        const authorId = els.postAuthor.value;
+        const folder = state.config?.authors?.[authorId]?.imageFolder || "image folder";
+
+        badge.classList.remove("ok", "bad", "warn", "checking");
+        if (block?.url) {
+            badge.classList.add("warn");
+            badge.textContent = "remote URL used; local file ignored";
+            return;
+        }
+        if (!filename) {
+            badge.classList.add("warn");
+            badge.textContent = "no local image filename yet";
+            return;
+        }
+
+        badge.classList.add("checking");
+        badge.textContent = `checking ${folder}/${filename}...`;
+        const exists = await localImageExists(authorId, filename);
+        badge.classList.remove("checking");
+        badge.classList.add(exists ? "ok" : "bad");
+        badge.textContent = exists ? `found: ${folder}/${filename}` : `missing: ${folder}/${filename}`;
+    }));
+}
+
+async function localImageExists(authorId, filename) {
+    try {
+        const folder = state.config.authors[authorId].imageFolder;
+        const directory = await state.root.getDirectoryHandle(folder);
+        await directory.getFileHandle(filename);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 function updateBlockFromInput(event) {
@@ -671,6 +953,7 @@ function updateBlockFromInput(event) {
     cleanupBlock(block);
     syncJsonFromBlocks();
     renderPreview();
+    updateImageStatusIndicators();
 }
 
 function handleBlockBuilderClick(event) {
@@ -697,6 +980,7 @@ function handleBlockBuilderClick(event) {
     syncJsonFromBlocks();
     renderBlockBuilder();
     renderPreview();
+    updateImageStatusIndicators();
 }
 
 function syncBlocksFromJson() {
@@ -708,6 +992,7 @@ function syncBlocksFromJson() {
         state.currentBlocks = content;
         renderBlockBuilder();
         renderPreview();
+        updateImageStatusIndicators();
     } catch {
         els.postPreview.innerHTML = "<p>Advanced JSON is not valid yet.</p>";
     }
@@ -741,6 +1026,13 @@ function blockLabel(type) {
 
 function lines(value) {
     return value.split("\n").map((item) => item.trim()).filter(Boolean);
+}
+
+function textParagraphs(text) {
+    return String(text || "")
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
 }
 
 function renderThemes() {
@@ -909,6 +1201,27 @@ function uniquePostId(base, posts) {
 
 function today() {
     return new Date().toISOString().slice(0, 10);
+}
+
+function formatPreviewDate(date) {
+    try {
+        return new Intl.DateTimeFormat("en", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit"
+        }).format(new Date(`${date}T00:00:00`));
+    } catch {
+        return date || today();
+    }
+}
+
+function element(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) {
+        node.className = className;
+    }
+    node.textContent = text || "";
+    return node;
 }
 
 function escapeHtml(value) {

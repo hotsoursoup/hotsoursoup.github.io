@@ -3,15 +3,17 @@
     "id": "post-2026-07-01",
     "title": "The Stranger (1942), Albert Camus.",
     "date": "2026-07-01",
-    "tag": "note",
-    "tags": [
-      "note"
-    ],
+    "tag": "bookreview",
+    "tags": [],
     "theme": "porcelain",
     "content": [
       {
         "type": "quote",
         "text": "\"Mother died today or yesterday maybe. I don't know\" "
+      },
+      {
+        "type": "image",
+        "src": "2_camus.jpg"
       },
       {
         "type": "text",
@@ -27,11 +29,7 @@
       },
       {
         "type": "text",
-        "text": "Unlike other people who might use this absurdity as an excuse for shredding moral responsibilities and any notion of vice or virtue, Mersault simply exists as he is. He doesn't lie about his feelings, nor does he feels any responsibility to act in consonance with what others would want him to do. The is the prelude to the opening where,"
-      },
-      {
-        "type": "text",
-        "text": "the death of his mother doesn't make him mourn like everyone else did; he simply stands there smoking a cigarette and then walks away without looking back even once. His mind is unfettered by the social or emotional sanctions."
+        "text": "Unlike other people who might use this absurdity as an excuse for shredding moral responsibilities and any notion of vice or virtue, Mersault simply exists as he is. He doesn't lie about his feelings, nor does he feels any responsibility to act in consonance with what others would want him to do. The is the prelude to the opening where, the death of his mother doesn't make him mourn like everyone else did; he simply stands there smoking a cigarette and then walks away without looking back even once. His mind is unfettered by the social or emotional sanctions."
       },
       {
         "type": "text",

@@ -555,6 +555,331 @@ textarea:focus {
     min-height: 140px;
 }
 
+#post-preview {
+    display: grid;
+    gap: 12px;
+}
+
+#post-preview .post-card {
+    --post-glow: color-mix(in srgb, var(--post-accent, var(--accent-2)) 28%, transparent);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid var(--post-border, var(--line));
+    border-radius: var(--radius);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--post-paper, var(--glass-strong)) 80%, transparent), color-mix(in srgb, var(--glass) 78%, transparent)),
+        radial-gradient(circle at 100% 0%, var(--post-glow), transparent 14rem);
+    box-shadow: var(--shadow-soft);
+    padding: clamp(16px, 2vw, 24px);
+}
+
+#post-preview .post-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 12px;
+}
+
+#post-preview .post-kicker {
+    margin: 0 0 6px;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+#post-preview .post-header h2 {
+    margin: 0;
+    font-size: clamp(1.35rem, 3vw, 2.15rem);
+    line-height: 1.03;
+}
+
+#post-preview time {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--glass-strong) 72%, transparent);
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+#post-preview .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 12px;
+}
+
+#post-preview .tag-row button {
+    min-height: 32px;
+    padding: 6px 10px;
+}
+
+#post-preview .post-body p {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    line-height: 1.62;
+}
+
+#post-preview .post-section-heading {
+    margin: 18px 0 10px;
+    font-size: 1.35rem;
+}
+
+#post-preview blockquote {
+    margin: 12px 0;
+    border-left: 4px solid var(--post-accent, var(--accent-2));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--glass-strong) 74%, transparent);
+    padding: 14px 18px;
+    font-size: 1.05rem;
+    font-weight: 750;
+}
+
+#post-preview figure {
+    margin: 14px 0;
+}
+
+#post-preview .post-body::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+#post-preview .image-block {
+    overflow: hidden;
+    width: fit-content;
+    max-width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--glass-strong) 76%, transparent);
+    box-shadow: var(--shadow-soft);
+}
+
+#post-preview .image-block img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 620px;
+    border-radius: inherit;
+}
+
+#post-preview .image-block.image-align-left,
+#post-preview .image-block.image-align-right {
+    width: min(34%, 300px);
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+
+#post-preview .image-block.image-align-left {
+    float: left;
+    margin-right: 18px;
+}
+
+#post-preview .image-block.image-align-right {
+    float: right;
+    margin-left: 18px;
+}
+
+#post-preview figcaption {
+    padding: 8px 10px;
+    color: var(--muted);
+    font-size: 0.84rem;
+}
+
+#post-preview .preview-image-fallback {
+    min-width: min(100%, 280px);
+    min-height: 130px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--danger) 12%, transparent), transparent),
+        color-mix(in srgb, var(--glass-strong) 72%, transparent);
+    padding: 16px;
+    text-align: center;
+}
+
+#post-preview .media-text {
+    display: grid;
+    grid-template-columns: minmax(165px, 0.42fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    margin: 14px 0;
+}
+
+#post-preview .media-text-right {
+    grid-template-columns: minmax(0, 1fr) minmax(165px, 0.42fr);
+}
+
+#post-preview .media-text-right figure {
+    order: 2;
+}
+
+#post-preview .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+    gap: 10px;
+}
+
+#post-preview .gallery figure {
+    width: 100%;
+    margin: 0;
+}
+
+#post-preview .gallery img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+#post-preview .post-list-items {
+    margin: 10px 0 14px;
+}
+
+#post-preview .code-panel {
+    clear: both;
+    width: 100%;
+    margin: 16px 0;
+}
+
+#post-preview .code-toggle {
+    display: grid;
+    grid-template-columns: auto minmax(44px, 1fr);
+    align-items: center;
+    gap: 10px;
+    width: min(100%, 360px);
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    font-weight: 850;
+    text-align: left;
+}
+
+#post-preview .code-line {
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent-3), transparent);
+    transform-origin: left center;
+    transition: height 220ms ease, transform 220ms ease;
+}
+
+#post-preview .code-panel.is-open .code-line {
+    height: 12px;
+    transform: scaleX(1.08);
+}
+
+#post-preview .code-drawer {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: max-height 320ms ease, opacity 180ms ease, transform 260ms ease;
+}
+
+#post-preview .code-panel.is-open .code-drawer {
+    max-height: min(900px, 78vh);
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#post-preview .code-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 15px 15px 0 0;
+    color: #dffcff;
+    background: linear-gradient(135deg, rgba(10, 16, 31, 0.98), rgba(32, 28, 62, 0.96));
+    padding: 9px 10px;
+    font-size: 0.76rem;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+#post-preview .copy-code {
+    color: #dffcff;
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 6px 10px;
+}
+
+#post-preview pre {
+    overflow: auto;
+    max-height: calc(78vh - 48px);
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 0 0 15px 15px;
+    color: #dffcff;
+    background: linear-gradient(135deg, rgba(10, 16, 31, 0.96), rgba(32, 28, 62, 0.95));
+    padding: 14px;
+}
+
+#post-preview .post-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 13px;
+    border-top: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+}
+
+#post-preview .like-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    border-radius: 999px;
+    padding: 7px 12px;
+}
+
+.preview-error,
+.preview-error-line {
+    border: 1px solid color-mix(in srgb, var(--danger) 38%, var(--line));
+    border-radius: 14px;
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 8%, var(--glass-strong));
+    padding: 12px;
+}
+
+.image-file-status {
+    width: fit-content;
+    margin: 6px 0 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--glass-strong) 72%, transparent);
+    padding: 5px 9px;
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.image-file-status.ok {
+    color: var(--ok);
+    border-color: color-mix(in srgb, var(--ok) 38%, var(--line));
+}
+
+.image-file-status.bad {
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 42%, var(--line));
+}
+
+.image-file-status.warn,
+.image-file-status.checking {
+    color: var(--muted);
+}
+
 .scrapbook-composer {
     display: grid;
     gap: 12px;
@@ -748,6 +1073,23 @@ textarea:focus {
     .scrapbook-topbar {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    #post-preview .post-header,
+    #post-preview .media-text,
+    #post-preview .media-text-right {
+        grid-template-columns: 1fr;
+    }
+
+    #post-preview .media-text-right figure {
+        order: 0;
+    }
+
+    #post-preview .image-block.image-align-left,
+    #post-preview .image-block.image-align-right {
+        float: none;
+        width: 100%;
+        margin: 14px 0;
     }
 }
 
