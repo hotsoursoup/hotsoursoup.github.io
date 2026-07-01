@@ -439,13 +439,21 @@ textarea {
     color: var(--ink);
     background: var(--field);
     padding: 10px 12px;
+    font-weight: 400;
     outline: none;
 }
 
 textarea {
     font-family: "Cascadia Code", Consolas, monospace;
     font-size: 0.92rem;
+    font-weight: 400;
     resize: vertical;
+}
+
+.block-field textarea,
+.block-field input,
+.block-field select {
+    font-weight: 400;
 }
 
 input:focus,
