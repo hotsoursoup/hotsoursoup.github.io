@@ -363,7 +363,7 @@ function searchablePostText(post) {
             ...(block.images || []).flatMap((image) => [image.alt, image.caption, image.url, image.src])
         ].filter(Boolean).join(" "))
         .join(" ");
-    return [post.title, post.date, post.authorName, post.theme, post.tags.join(" "), contentText]
+    return [post.title, post.titleNote, post.date, post.authorName, post.theme, post.tags.join(" "), contentText]
         .join(" ")
         .toLowerCase();
 }
@@ -382,7 +382,7 @@ function renderPost(post) {
     header.innerHTML = `
         <div>
             <p class="post-kicker">${escapeHtml(post.authorName)} / ${escapeHtml(theme.label)}</p>
-            <h2>${escapeHtml(post.title)}</h2>
+            <h2>${escapeHtml(post.title)}${post.titleNote ? `<small>${escapeHtml(post.titleNote)}</small>` : ""}</h2>
         </div>
         <time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time>
     `;

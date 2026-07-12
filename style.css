@@ -578,6 +578,17 @@ h1 {
     font-weight: 900;
 }
 
+.post-header h2 small {
+    display: inline-block;
+    margin-left: 10px;
+    color: var(--muted);
+    font-size: 0.42em;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
 .post-card:first-child .post-header h2 {
     max-width: 760px;
     font-size: var(--featured-title);

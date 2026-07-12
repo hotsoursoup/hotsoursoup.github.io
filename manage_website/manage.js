@@ -663,6 +663,11 @@ function renderPreviewPost(post) {
     kicker.textContent = `${post.authorName} / ${theme.label || post.theme}`;
     const title = document.createElement("h2");
     title.textContent = post.title;
+    if (post.titleNote) {
+        const note = document.createElement("small");
+        note.textContent = post.titleNote;
+        title.append(note);
+    }
     headerCopy.append(kicker, title);
     const time = document.createElement("time");
     time.dateTime = post.date;
